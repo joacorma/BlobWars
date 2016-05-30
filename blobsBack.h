@@ -70,7 +70,10 @@ void ProcesoDosJugadores (TipoTablero Tablero, int filas, int columnas, int turn
 }
 
 void CapturarJugada (TipoTablero Tablero, int filas, int columnas, int turno, char *vecErrores[MAX_ERRORES], int F1, int C1, int F2, int C2)
-/* Si quiero retornar un vector de chars: char * CapturarJugada. */
+/* Si quiero retornar un vector de chars: char * CapturarJugada. */ 
+/* DI ACA PODRIAMOS HACER EL TABERO COMO UN PUNTERO EN VEZ DE UNA MATRIZ //
+// ASI NO TENEMOS QUE PASARLE LAS FILAS Y LAS COLUMNAS CADA VEZ QUE VA A //
+// CAPTURAR LA JUGADA, NO?//
 {
 	int datosInvalidos = 1;
 	char movimiento[MAX_MOVIMIENTOS];
