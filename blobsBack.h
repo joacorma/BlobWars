@@ -13,6 +13,7 @@
 
 typedef char TipoColumna[MAX_COL];
 typedef TipoColumna TipoTablero[MAX_FILA];
+char **tablero;
 
 void CapturarJugada (TipoTablero Tablero, int filas, int columnas, int turno, char *vecErrores[MAX_ERRORES], int F1, int C1, int F2, int C2);
 int ValidarParametros (char movimiento[], TipoTablero Tablero, int filas, int columnas, int turno, char *vecErrores[MAX_ERRORES], int F1, int C1, int F2, int C2);
@@ -33,8 +34,13 @@ void ImprimirTablero (TipoTablero Tablero, int filas, int columnas)
 	}
 }
 
-void CrearTablero (TipoTablero Tablero, int filas, int columnas)
+void CrearTablero (tablero, int filas, int columnas)
 {
+	tablero=malloc(columnas);
+	for(i=0;i<col;i++)
+	{
+		tablero[i]=malloc(filas);
+	}
 	int i, j;
 
 	for (i=0; i<filas; i++)
