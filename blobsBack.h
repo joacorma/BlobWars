@@ -14,10 +14,16 @@
 typedef char TipoColumna[MAX_COL];
 typedef TipoColumna TipoTablero[MAX_FILA];
 
+void CapturarJugada (TipoTablero Tablero, int filas, int columnas, int turno, char *vecErrores[MAX_ERRORES], int F1, int C1, int F2, int C2);
+int ValidarParametros (char movimiento[], TipoTablero Tablero, int filas, int columnas, int turno, char *vecErrores[MAX_ERRORES], int F1, int C1, int F2, int C2);
+int CalcularDistancia (int F1, int C1, int F2, int C2);
+int Disponible (TipoTablero Tablero, int fila, int columna);
+void Save ();
+
 void ImprimirTablero (TipoTablero Tablero, int filas, int columnas)
 {
 	int i, j;
-	system("clear");
+	/*system("clear");*/
 	
 	for (i=0; i<filas; i++)
 	{
@@ -34,7 +40,7 @@ void CrearTablero (TipoTablero Tablero, int filas, int columnas)
 	for (i=0; i<filas; i++)
 	{
 		for (j=0; j<columnas; j++)
-			Tablero[i][j] = 'v';
+			Tablero[i][j] = '0';
 	}
 
 	Tablero[0][0] = 'A';
@@ -45,7 +51,7 @@ void CrearTablero (TipoTablero Tablero, int filas, int columnas)
 
 void ProcesoDosJugadores (TipoTablero Tablero, int filas, int columnas, int turno, char *vecErrores[MAX_ERRORES])
 {
-	int fin = 0;
+	int fin = 0, F1, C1, F2, C2;
 	/*char movimiento[MAX_MOVIMIENTOS];*/ 
 
 	while (fin == 0)
@@ -53,18 +59,17 @@ void ProcesoDosJugadores (TipoTablero Tablero, int filas, int columnas, int turn
 		ImprimirTablero(Tablero, filas, columnas);
 		printf("Turno Jugador %d\n", turno);
 
-		printf("Introduzca un movimiento: ");
-		/*movimiento[] = */CapturarJugada (Tablero, filas, columnas, turno, vecErrores);
+		/*movimiento[] = */CapturarJugada (Tablero, filas, columnas, turno, vecErrores, F1, C1, F2, C2);
+		printf("%d %d %d %d\n", F1, C1, F2, C2);
 
 		if (turno == 1)
 			turno = 2;
 		else
 			turno = 1;
-		getchar();
 	}
 }
 
-void CapturarJugada (TipoTablero Tablero, int filas, int columnas, int turno, char *vecErrores[MAX_ERRORES])
+void CapturarJugada (TipoTablero Tablero, int filas, int columnas, int turno, char *vecErrores[MAX_ERRORES], int F1, int C1, int F2, int C2)
 /* Si quiero retornar un vector de chars: char * CapturarJugada. */
 {
 	int datosInvalidos = 1;
@@ -72,18 +77,19 @@ void CapturarJugada (TipoTablero Tablero, int filas, int columnas, int turno, ch
 	
 	while (datosInvalidos == 1)
 	{
-		scanf("%s", &movimiento);
+		printf("Introduzca un movimiento: ");
+		scanf("%s", movimiento);
 		BORRAR_BUFFER;
-		datosInvalidos = ValidarParametros (movimiento, Tablero, filas, columnas, turno, vecErrores);
+		datosInvalidos = ValidarParametros (movimiento, Tablero, filas, columnas, turno, vecErrores, F1, C1, F2, C2);
 
 	}
 	/* Falta devolver los parametros que capture */
 	/* return movimiento; */
 }
 
-int ValidarParametros (char movimiento[], TipoTablero Tablero, int filas, int columnas, int turno, char *vecErrores[MAX_ERRORES])
+int ValidarParametros (char movimiento[], TipoTablero Tablero, int filas, int columnas, int turno, char *vecErrores[MAX_ERRORES], int F1, int C1, int F2, int C2)
 {
-	int cantLeidos, F1, C1, F2, C2, diatncia;
+	int cantLeidos, distancia;
 
 	if (strcmp(movimiento, "save") == 0)
 		Save ();
@@ -94,13 +100,13 @@ int ValidarParametros (char movimiento[], TipoTablero Tablero, int filas, int co
 	}
 	else
 	{
-		cantLeidos = sscanf(movimiento, "[%d,%d][%d,%d]", F1, C1, F2, C2);
+		cantLeidos = sscanf(movimiento, "[%d,%d][%d,%d]", &F1, &C1, &F2, &C2);
 		
 		if (cantLeidos != 4)
 			ImprimirError (vecErrores, 3);
 		else if ((F1 >= filas) || (F1 < 0) || (C1 >= columnas) || (C1 < 0) || (F2 >= filas) || (F2 < 0) || (C2 >= columnas) || (C2 < 0))
 			ImprimirError (vecErrores, 4);
-		else if ((diatncia = CalcularDistancia (F1, C1, F2, C2)) != 1) && distancia != 2))
+		else if (((distancia = CalcularDistancia (F1, C1, F2, C2)) != 1) && (distancia != 2))
 			ImprimirError (vecErrores, 5);
 		else if (Disponible (Tablero, F1, C1) != turno)
 			ImprimirError (vecErrores, 6);
@@ -115,11 +121,11 @@ int ValidarParametros (char movimiento[], TipoTablero Tablero, int filas, int co
 int CalcularDistancia (int F1, int C1, int F2, int C2)
 {
 	int distFila, distColumna;
-	distFila = F2 - F1;
-	distColumna = C2 - C1;
-	if ((distFila == 1) && (distColumna == 1))
+	distFila = abs(F2 - F1);
+	distColumna = abs(C2 - C1);
+	if (((distFila == 0) && (distColumna == 1)) || ((distFila == 1) && (distColumna == 0)) || ((distFila == 1) && (distColumna == 1)))
 		return 1;
-	else if ((distFila == 2) && (distColumna == 2))
+	else if (((distFila == 1) && (distColumna == 2)) || ((distFila == 2) && (distColumna == 1)) || ((distFila == 2) && (distColumna == 2)) || ((distFila == 0) && (distColumna == 2)) || ((distFila == 2) && (distColumna == 0)))
 		return 2;
 	return 0;
 }
