@@ -3,24 +3,27 @@
 #include "time.h"
 #include "getnum.h"
 #include <string.h>
-#include "blobsBack.h"
+
 
 #define MAX_ERRORES 10
 #define MAX_FILA 30
 #define MAX_COL 30
+#define MAX_MOVIMIENTOS 50
+
+#define BORRAR_BUFFER while (getchar()!='\n')
 
 typedef char TipoColumna[MAX_COL];
 typedef TipoColumna TipoTablero[MAX_FILA];
 
+void ImprimirError (char *vecErrores[MAX_ERRORES], int nroError);
 void DosJugadores (char *vecErrores[MAX_ERRORES], TipoTablero Tablero);
 void ContraLaCompu ();
 void RecuperarJuego ();
 void CargarErrores (char *vecErrores[MAX_ERRORES]);
-void ImprimirError (char *vecErrores[MAX_ERRORES], int nroError);
 void PantallaInicial ();
 int Pantalla11 ();
 int Pantalla12 ();
-
+#include "blobsBack.h"
 
 int main ()
 {
@@ -41,7 +44,7 @@ int main ()
 			ContraLaCompu ();
 		else if (opcion == 3)
 			RecuperarJuego ();
-		else
+		else if (opcion != 4)
 			ImprimirError(vecErrores, 0);
 	}
 	
@@ -72,12 +75,12 @@ void DosJugadores (char *vecErrores[MAX_ERRORES], TipoTablero Tablero)
 	getchar();
 
 	CrearTablero (Tablero, filas, columnas);
-
-	turno = rand()%2 + 1;
-
 	ImprimirTablero (Tablero, filas, columnas);
+	printf("\n");
 	
-	/*ProcesoDosJugadores (Tablero, filas, columnas, turno);*/
+	turno = rand()%2 + 1;
+	
+	ProcesoDosJugadores (Tablero, filas, columnas, turno, vecErrores);
 }
 
 void ContraLaCompu ()
@@ -96,6 +99,10 @@ void CargarErrores (char *vecErrores[MAX_ERRORES])
 	vecErrores[1] = "La cantidad de filas debe ser entre 5 y 30";
 	vecErrores[2] = "La cantidad de columnas debe ser entre 5 y 30";
 	vecErrores[3] = "El formato introducido es incorrecto";
+	vecErrores[4] = "No existe esa poscicion en el tablero";
+	vecErrores[5] = "Ese movimiento no esta dentro del rango de movimientos posibles";
+	vecErrores[6] = "Ese casillero no corresponde a un Blob de tu color";
+	vecErrores[7] = "Ese casillero ya esta ocupado";
 }
 
 void ImprimirError (char *vecErrores[MAX_ERRORES], int nroError)
@@ -106,7 +113,7 @@ void ImprimirError (char *vecErrores[MAX_ERRORES], int nroError)
 
 void PantallaInicial ()
 {
-	system("clear");
+	/*system("clear");*/
 
 	printf("BLOB WARS\n\n\n");
 	printf("1. Juego de dos jugadores\n");
@@ -129,4 +136,3 @@ int Pantalla12 ()
 	col = getint("Ingrese la cantidad de columnas del tablero (entre 5 y 30): ");
 	return col;
 }
-
