@@ -153,7 +153,7 @@ void CrearBlob (TipoTablero Tablero ,int fila, int columna, int turno)
 
 void CambiarColor (TipoTablero Tablero, int fila, int columna, int turno)
 {
-	Tablero[fila][columna] = ((turno == 1) ? 'Z' : 'A');
+	Tablero[fila][columna] = ((turno == 1) ? 'A' : 'Z');
 }
 
 void Adyacentes (TipoTablero Tablero, int filas, int columnas, int turno, int fila, int columna)
@@ -166,7 +166,7 @@ void Adyacentes (TipoTablero Tablero, int filas, int columnas, int turno, int fi
 		{
 			if (i>=0 && j>=0 && i<filas && j<columnas)
 			{
-				blob = Disponible(Tablero, fila, columna);
+				blob = Disponible(Tablero, i, j);
 				if ((blob != 0) && (abs(turno-blob) == 1))
 					CambiarColor(Tablero, i, j, turno);
 			}
