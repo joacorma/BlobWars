@@ -40,17 +40,19 @@ int main ()
 		opcion = getchar();
 		
 
-		if (opcion == '1') /*Cambiar esto por un SWITCH*/
-			DosJugadores (vecErrores, Tablero);
-		else if (opcion == '2')
-			ContraLaCompu ();
-		else if (opcion == '3')
-			RecuperarJuego ();
-		else if (opcion != '4')
-			ImprimirError(vecErrores, 0);
+		switch(opcion)
+		{
+			case '1': DosJugadores (vecErrores, Tablero);
+				break;
+			case '2': ContraLaCompu ();
+				break;
+			case '3': RecuperarJuego ();
+				break;
+			case '4': printf("Gracias por jugar al Blob Wars. Hasta pronto!\n");
+				break;
+			default: ImprimirError(vecErrores, 0);
+		}
 	}
-	
-	printf("Gracias por jugar al Blob Wars. Hasta pronto!\n");
 	return 0;
 }
 
