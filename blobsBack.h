@@ -14,8 +14,8 @@
 typedef char TipoColumna[MAX_COL];
 typedef TipoColumna TipoTablero[MAX_FILA];
 
-void CapturarJugada (TipoTablero Tablero, int filas, int columnas, int turno, char *vecErrores[MAX_ERRORES], int F1, int C1, int F2, int C2);
-int ValidarParametros (char movimiento[], TipoTablero Tablero, int filas, int columnas, int turno, char *vecErrores[MAX_ERRORES], int F1, int C1, int F2, int C2);
+void CapturarJugada (TipoTablero Tablero, int filas, int columnas, int turno, char **vecErrores, int F1, int C1, int F2, int C2);
+int ValidarParametros (char movimiento[], TipoTablero Tablero, int filas, int columnas, int turno, char **vecErrores, int F1, int C1, int F2, int C2);
 int CalcularDistancia (int F1, int C1, int F2, int C2);
 int Disponible (TipoTablero Tablero, int fila, int columna);
 void Save ();
@@ -49,7 +49,7 @@ void CrearTablero (TipoTablero Tablero, int filas, int columnas)
 	Tablero[filas-1][columnas-1] = 'Z';
 }
 
-void ProcesoDosJugadores (TipoTablero Tablero, int filas, int columnas, int turno, char *vecErrores[MAX_ERRORES])
+void ProcesoDosJugadores (TipoTablero Tablero, int filas, int columnas, int turno, char **vecErrores)
 {
 	int fin = 0, F1, C1, F2, C2;
 	/*char movimiento[MAX_MOVIMIENTOS];*/ 
@@ -69,7 +69,7 @@ void ProcesoDosJugadores (TipoTablero Tablero, int filas, int columnas, int turn
 	}
 }
 
-void CapturarJugada (TipoTablero Tablero, int filas, int columnas, int turno, char *vecErrores[MAX_ERRORES], int F1, int C1, int F2, int C2)
+void CapturarJugada (TipoTablero Tablero, int filas, int columnas, int turno, char **vecErrores, int F1, int C1, int F2, int C2)
 /* Si quiero retornar un vector de chars: char * CapturarJugada. */
 {
 	int datosInvalidos = 1;
@@ -87,7 +87,7 @@ void CapturarJugada (TipoTablero Tablero, int filas, int columnas, int turno, ch
 	/* return movimiento; */
 }
 
-int ValidarParametros (char movimiento[], TipoTablero Tablero, int filas, int columnas, int turno, char *vecErrores[MAX_ERRORES], int F1, int C1, int F2, int C2)
+int ValidarParametros (char movimiento[], TipoTablero Tablero, int filas, int columnas, int turno, char **vecErrores, int F1, int C1, int F2, int C2)
 {
 	int cantLeidos, distancia;
 
