@@ -140,6 +140,27 @@ int Disponible (TipoTablero Tablero, int fila, int columna)
 
 }
 
+void CrearBlob (TipoTablero Tablero ,int fila, int columna, int turno)
+{
+	Tablero[fila][columna] = ((turno == 1) ? 'A' : 'Z');
+}
+
+void Adyacentes (TipoTablero Tablero, int fila, int columna, int turno)
+{
+	for (i=(fila-1); i<=(fila+1); i++)
+	{
+		for (j=(columna-1); j<=(columna+1); j++)
+		{
+			if (i>=0 && j>=0 && i<=9 && j<=9)
+			{
+				blob = Disponible(Tablero, fila, columna);
+				if ((blob != 0) && (abs(turno-blob) == 1))
+					CambiarColor();
+			}
+		}
+	}
+}
+
 void Save ()
 {
 	printf("Save\n");
