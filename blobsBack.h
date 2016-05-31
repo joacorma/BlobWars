@@ -100,7 +100,7 @@ int ValidarParametros (char movimiento[], TipoTablero Tablero, int filas, int co
 	}
 	else
 	{
-		cantLeidos = sscanf(movimiento, "[%d,%d][%d,%d]", mov[0], mov[1], mov[2], mov[3]);
+		cantLeidos = sscanf(movimiento, "[%d,%d][%d,%d]", mov, (mov+1), (mov+2), (mov+3));
 		
 		if (cantLeidos != 4)
 			ImprimirError (vecErrores, 3);
