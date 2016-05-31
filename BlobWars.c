@@ -15,11 +15,11 @@
 typedef char TipoColumna[MAX_COL];
 typedef TipoColumna TipoTablero[MAX_FILA];
 
-void ImprimirError (char *vecErrores[MAX_ERRORES], int nroError);
-void DosJugadores (char *vecErrores[MAX_ERRORES], TipoTablero Tablero);
+void ImprimirError (char **vecErrores, int nroError);
+void DosJugadores (char **vecErrores, TipoTablero Tablero);
 void ContraLaCompu ();
 void RecuperarJuego ();
-void CargarErrores (char *vecErrores[MAX_ERRORES]);
+void CargarErrores (char **vecErrores);
 void PantallaInicial ();
 int Pantalla11 ();
 int Pantalla12 ();
@@ -36,15 +36,17 @@ int main ()
 	while (opcion != 4)
 	{
 		PantallaInicial ();
-		opcion = getint("Elegir opcion: ");
+		printf("Elegir opcion: ");
+		opcion = getchar();
+		
 
-		if (opcion == 1)
+		if (opcion == '1') /*Cambiar esto por un SWITCH*/
 			DosJugadores (vecErrores, Tablero);
-		else if (opcion == 2)
+		else if (opcion == '2')
 			ContraLaCompu ();
-		else if (opcion == 3)
+		else if (opcion == '3')
 			RecuperarJuego ();
-		else if (opcion != 4)
+		else if (opcion != '4')
 			ImprimirError(vecErrores, 0);
 	}
 	
@@ -52,7 +54,7 @@ int main ()
 	return 0;
 }
 
-void DosJugadores (char *vecErrores[MAX_ERRORES], TipoTablero Tablero)
+void DosJugadores (char **vecErrores, TipoTablero Tablero)
 {	
 	int filas = Pantalla11(), columnas, turno;
 	srand (time (NULL));
@@ -78,7 +80,7 @@ void DosJugadores (char *vecErrores[MAX_ERRORES], TipoTablero Tablero)
 	ImprimirTablero (Tablero, filas, columnas);
 	printf("\n");
 	
-	turno = rand()%2 + 1;
+	turno = rand()%2 + 1; /*RANDINT*/
 	
 	ProcesoDosJugadores (Tablero, filas, columnas, turno, vecErrores);
 }
@@ -93,7 +95,7 @@ void RecuperarJuego ()
 	printf("Proceso 3\n");
 }
 
-void CargarErrores (char *vecErrores[MAX_ERRORES])
+void CargarErrores (char **vecErrores)
 {
 	vecErrores[0] = "La opcion debe ser entre 1 y 4";
 	vecErrores[1] = "La cantidad de filas debe ser entre 5 y 30";
@@ -105,7 +107,7 @@ void CargarErrores (char *vecErrores[MAX_ERRORES])
 	vecErrores[7] = "Ese casillero ya esta ocupado";
 }
 
-void ImprimirError (char *vecErrores[MAX_ERRORES], int nroError)
+void ImprimirError (char **vecErrores, int nroError)
 {
 	printf("ERROR: %s\n", vecErrores[nroError]);
 
