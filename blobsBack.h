@@ -1,59 +1,60 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "time.h"
+#include <time.h>
 #include "getnum.h"
 #include <string.h>
 
 #define MAX_ERRORES 10
-#define MAX_FILA 30
-#define MAX_COL 30
 #define MAX_MOVIMIENTOS 50
 
 #define BORRAR_BUFFER while (getchar()!='\n')
 
-typedef char TipoColumna[MAX_COL];
-typedef TipoColumna TipoTablero[MAX_FILA];
 
-void CapturarJugada (TipoTablero Tablero, int filas, int columnas, int turno, char **vecErrores, int *mov);
-int ValidarParametros (char movimiento[], TipoTablero Tablero, int filas, int columnas, int turno, char **vecErrores, int *mov);
+void CapturarJugada (char ***Tablero, int filas, int columnas, int turno, char **vecErrores, int *mov);
+int ValidarParametros (char movimiento[], char ***Tablero, int filas, int columnas, int turno, char **vecErrores, int *mov);
 int CalcularDistancia (int *mov);
-int Disponible (TipoTablero Tablero, int fila, int columna);
-void CrearBlob (TipoTablero Tablero ,int fila, int columna, int turno);
-void CambiarColor (TipoTablero Tablero, int fila, int columna, int turno);
-void Adyacentes (TipoTablero Tablero, int filas, int columnas, int turno, int fila, int columna);
-void Salto (TipoTablero Tablero, int *mov);
+int Disponible (char ***Tablero, int fila, int columna);
+void CrearBlob (char ***Tablero ,int fila, int columna, int turno);
+void CambiarColor (char ***Tablero, int fila, int columna, int turno);
+void Adyacentes (char ***Tablero, int filas, int columnas, int turno, int fila, int columna);
+void Salto (char ***Tablero, int *mov);
 void Save ();
 
-void ImprimirTablero (TipoTablero Tablero, int filas, int columnas)
+void ImprimirTablero (char ***Tablero, int filas, int columnas)/*FRONT*/
 {
 	int i, j;
 	/*system("clear");*/
-	
 	for (i=0; i<filas; i++)
 	{
 		for (j=0; j<columnas; j++)
-			printf("%c ", Tablero[i][j]);
+			printf("%c ", (*Tablero)[i][j]);
 		printf("\n");
 	}
 }
 
-void CrearTablero (TipoTablero Tablero, int filas, int columnas)
+void CrearTablero (char ***Tablero, int filas, int columnas)
 {
 	int i, j;
-
-	for (i=0; i<filas; i++)
+	*Tablero=malloc(filas*sizeof(char*));
+	for(i=0;i<filas;i++)
+	{
+		(*Tablero)[i]=malloc(columnas);
+	}
+	for(i=0;i<filas;i++)
 	{
 		for (j=0; j<columnas; j++)
-			Tablero[i][j] = '0';
+			(*Tablero)[i][j] = '0';
 	}
 
-	Tablero[0][0] = 'A';
-	Tablero[0][columnas-1] = 'Z';
-	Tablero[filas-1][0] = 'A';
-	Tablero[filas-1][columnas-1] = 'Z';
+	(*Tablero)[0][0] = 'A';
+	(*Tablero)[0][columnas-1] = 'Z';
+	(*Tablero)[filas-1][0] = 'A';
+	(*Tablero)[filas-1][columnas-1] = 'Z';
+
+
 }
 
-void ProcesoDosJugadores (TipoTablero Tablero, int filas, int columnas, int turno, char **vecErrores)
+void ProcesoDosJugadores (char ***Tablero, int filas, int columnas, int turno, char **vecErrores)
 {
 	int fin = 0, mov[4];
 
@@ -78,7 +79,7 @@ void ProcesoDosJugadores (TipoTablero Tablero, int filas, int columnas, int turn
 	}
 }
 
-void CapturarJugada (TipoTablero Tablero, int filas, int columnas, int turno, char **vecErrores, int *mov)
+void CapturarJugada (char ***Tablero, int filas, int columnas, int turno, char **vecErrores, int *mov)
 {
 	int datosInvalidos = 1;
 	char movimiento[MAX_MOVIMIENTOS];
@@ -93,7 +94,7 @@ void CapturarJugada (TipoTablero Tablero, int filas, int columnas, int turno, ch
 	}
 }
 
-int ValidarParametros (char movimiento[], TipoTablero Tablero, int filas, int columnas, int turno, char **vecErrores, int *mov)
+int ValidarParametros (char movimiento[], char ***Tablero, int filas, int columnas, int turno, char **vecErrores, int *mov)
 {
 	int cantLeidos, distancia;
 
@@ -136,27 +137,27 @@ int CalcularDistancia (int *mov)
 	return 0;
 }
 
-int Disponible (TipoTablero Tablero, int fila, int columna)
+int Disponible (char ***Tablero, int fila, int columna)
 {
-	if (Tablero[fila][columna] == 'A')
+	if ((*Tablero)[fila][columna] == 'A')
 		return 1;
-	else if (Tablero[fila][columna] == 'Z')
+	else if ((*Tablero)[fila][columna] == 'Z')
 		return 2;
 	return 0;
 
 }
 
-void CrearBlob (TipoTablero Tablero ,int fila, int columna, int turno)
+void CrearBlob (char ***Tablero ,int fila, int columna, int turno)
 {
-	Tablero[fila][columna] = ((turno == 1) ? 'A' : 'Z');
+	(*Tablero)[fila][columna] = ((turno == 1) ? 'A' : 'Z');
 }
 
-void CambiarColor (TipoTablero Tablero, int fila, int columna, int turno)
+void CambiarColor (char ***Tablero, int fila, int columna, int turno)
 {
-	Tablero[fila][columna] = ((turno == 1) ? 'A' : 'Z');
+	(*Tablero)[fila][columna] = ((turno == 1) ? 'A' : 'Z');
 }
 
-void Adyacentes (TipoTablero Tablero, int filas, int columnas, int turno, int fila, int columna)
+void Adyacentes (char ***Tablero, int filas, int columnas, int turno, int fila, int columna)
 {
 	int i, j, blob;
 
@@ -174,14 +175,15 @@ void Adyacentes (TipoTablero Tablero, int filas, int columnas, int turno, int fi
 	}
 }
 
-void Salto (TipoTablero Tablero, int *mov)
+void Salto (char ***Tablero, int *mov)
 {
 	char aux;
 
-	aux = Tablero[mov[0]][mov[1]];
-	Tablero[mov[0]][mov[1]] = '0';
-	Tablero[mov[2]][mov[3]] = aux;
+	aux = (*Tablero)[mov[0]][mov[1]];
+	(*Tablero)[mov[0]][mov[1]] = '0';
+	(*Tablero)[mov[2]][mov[3]] = aux;
 }
+
 
 void Save ()
 {

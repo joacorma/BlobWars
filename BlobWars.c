@@ -1,22 +1,18 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "time.h"
+#include <time.h>
 #include "getnum.h"
 #include <string.h>
 
 
 #define MAX_ERRORES 10
-#define MAX_FILA 30
-#define MAX_COL 30
 #define MAX_MOVIMIENTOS 50
 
 #define BORRAR_BUFFER while (getchar()!='\n')
 
-typedef char TipoColumna[MAX_COL];
-typedef TipoColumna TipoTablero[MAX_FILA];
 
 void ImprimirError (char **vecErrores, int nroError);
-void DosJugadores (char **vecErrores, TipoTablero Tablero);
+void DosJugadores (char **vecErrores, char ***Tablero);
 void ContraLaCompu ();
 void RecuperarJuego ();
 void CargarErrores (char **vecErrores);
@@ -29,9 +25,9 @@ int main ()
 {
 	int opcion = 0;
 	char *vecErrores[10];
+	char **Tablero;
 
 	CargarErrores(vecErrores);
-	TipoTablero Tablero;
 	
 	while (opcion != 4)
 	{
@@ -42,7 +38,7 @@ int main ()
 
 		switch(opcion)
 		{
-			case '1': DosJugadores (vecErrores, Tablero);
+			case '1': DosJugadores (vecErrores, &Tablero);
 				break;
 			case '2': ContraLaCompu ();
 				break;
@@ -56,7 +52,7 @@ int main ()
 	return 0;
 }
 
-void DosJugadores (char **vecErrores, TipoTablero Tablero)
+void DosJugadores (char **vecErrores, char ***Tablero)
 {	
 	int filas = Pantalla11(), columnas, turno;
 	srand (time (NULL));
