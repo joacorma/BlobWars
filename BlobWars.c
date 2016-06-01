@@ -29,7 +29,7 @@ int main ()
 
 	CargarErrores(vecErrores);
 	
-	while (opcion != 4)
+	while (opcion != '4')
 	{
 		PantallaInicial ();
 		printf("Elegir opcion: ");

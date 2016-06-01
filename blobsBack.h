@@ -18,7 +18,7 @@ void CrearBlob (char ***Tablero ,int fila, int columna, int turno);
 void CambiarColor (char ***Tablero, int fila, int columna, int turno);
 void Adyacentes (char ***Tablero, int filas, int columnas, int turno, int fila, int columna);
 void Salto (char ***Tablero, int *mov);
-int Fin (TipoTablero Tablero, int filas, int columnas, int turno);
+int Fin (char ***Tablero, int filas, int columnas, int turno);
 void Save ();
 
 void ImprimirTablero (char ***Tablero, int filas, int columnas)/*FRONT*/
@@ -188,14 +188,14 @@ void Salto (char ***Tablero, int *mov)
 	(*Tablero)[mov[2]][mov[3]] = aux;
 }
 
-int Fin (TipoTablero Tablero, int filas, int columnas, int turno)
+int Fin (char ***Tablero, int filas, int columnas, int turno)
 {
 	int i, j, k, l;
  	for (i=0; i<filas; i++)
 	{
 		for (j=0; j<columnas; j++)
 		{
-		if (Tablero[i][j] == ((turno == 1) ? 'A' : 'Z'))
+		if ((*Tablero)[i][j] == ((turno == 1) ? 'A' : 'Z'))
 		{
 			for (k=(i-2); k<=(i+2); k++)
 			{
