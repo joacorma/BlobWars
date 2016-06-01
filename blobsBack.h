@@ -13,7 +13,7 @@ void CrearBlob (char ***Tablero ,int fila, int columna, int turno);
 void Adyacentes (char ***Tablero, int filas, int columnas, int turno, int fila, int columna);
 void Salto (char ***Tablero, int *mov);
 int Fin (char ***Tablero, int filas, int columnas, int turno);
-void Save ();
+void Save (char ***Tablero,int filas,int columnas,int turno,char *opcion);
 
 void CrearTablero (char ***Tablero, int filas, int columnas)
 {
@@ -163,7 +163,21 @@ int Fin (char ***Tablero, int filas, int columnas, int turno)
 
 }
 
-void Save ()
+void Save (char ***Tablero,int filas,int columnas, int turno, char *opcion)
 {
+	int i, j;
 	printf("Save\n");
+	FILE = *fPointer;
+	fPointer = fopen("PartidaSalvada.txt","w");
+	for(i=0;i<filas;i++)
+	{
+		for(j=0;j<columnas;j++)
+		{
+			fprintf(fPointer, "%c ", (*Tablero)[i][j]);
+		}
+		fprintf(fPointer, "\n");
+	}
+	fprintf(fPointer, "%d,%d,%d", filas, columnas, turno);
+	fclose(fPointer);
+	*opcion='4';
 }
