@@ -1,31 +1,34 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
+#include "time.h"
 #include "getnum.h"
 #include <string.h>
-
+#include "blobsBack.h"
 
 #define MAX_ERRORES 10
 #define MAX_MOVIMIENTOS 50
+#define MIN_FILAS 5
+#define MAX_FILAS 30
+#define MIN_COLUMNAS 5
+#define MAX_COLUMNAS 30
 
 #define BORRAR_BUFFER while (getchar()!='\n')
 
-
-void ImprimirError (char **vecErrores, int nroError);
 void DosJugadores (char **vecErrores, char ***Tablero);
 void ContraLaCompu ();
 void RecuperarJuego ();
 void CargarErrores (char **vecErrores);
+void ImprimirError (char **vecErrores, int nroError);
 void PantallaInicial ();
 int Pantalla11 ();
 int Pantalla12 ();
-#include "blobsBack.h"
+void ImprimirTablero (char ***Tablero, int filas, int columnas);
+void CapturarJugada (char ***Tablero, int filas, int columnas, int turno, char **vecErrores, int *mov);
 
 int main ()
 {
 	int opcion = 0;
-	char *vecErrores[10];
-	char **Tablero;
+	char *vecErrores[MAX_ERRORES], **Tablero;
 
 	CargarErrores(vecErrores);
 	
@@ -54,33 +57,47 @@ int main ()
 
 void DosJugadores (char **vecErrores, char ***Tablero)
 {	
-	int filas = Pantalla11(), columnas, turno;
+	int filas = Pantalla11(), columnas, turno, fin = 0, mov[4];
 	srand (time (NULL));
-	while ((filas < 5) || (filas > 30))
+	
+	while ((filas < MIN_FILAS) || (filas > MAX_FILAS))
 	{
 		ImprimirError(vecErrores, 1);
 		filas = Pantalla11();
 	}
 
 	columnas = Pantalla12();
-	while ((columnas < 5) || (columnas > 30))
+	while ((columnas < MIN_COLUMNAS) || (columnas > MAX_COLUMNAS))
 	{
 		ImprimirError(vecErrores, 2);
 		columnas = Pantalla11();
 	}
 
+	printf("\n");
 	printf("Jugador 1: A\n");
 	printf("Jugador 2: Z\n");
-	printf("Presione cualquier tecla para comenzar el juego...\n");
-	getchar();
 
 	CrearTablero (Tablero, filas, columnas);
-	ImprimirTablero (Tablero, filas, columnas);
 	printf("\n");
 	
 	turno = rand()%2 + 1; /*RANDINT*/
-	
-	ProcesoDosJugadores (Tablero, filas, columnas, turno, vecErrores);
+
+	while (fin == 0)
+	{
+		ImprimirTablero(Tablero, filas, columnas);
+		printf("Turno Jugador %d\n", turno);
+
+		CapturarJugada (Tablero, filas, columnas, turno, vecErrores, mov);
+		
+		Jugar (Tablero, filas, columnas, turno, mov);
+
+		if (turno == 1)
+			turno = 2;
+		else
+			turno = 1;
+
+		fin = Fin(Tablero, filas, columnas, turno);
+	}
 }
 
 void ContraLaCompu ()
@@ -135,4 +152,34 @@ int Pantalla12 ()
 	int col;
 	col = getint("Ingrese la cantidad de columnas del tablero (entre 5 y 30): ");
 	return col;
+}
+
+
+void ImprimirTablero (char ***Tablero, int filas, int columnas)
+{
+	int i, j;
+	
+	/*system("clear");*/
+	for (i=0; i<filas; i++)
+	{
+		for (j=0; j<columnas; j++)
+			printf("%c ", (*Tablero)[i][j]);
+		printf("\n");
+	}
+}
+
+void CapturarJugada (char ***Tablero, int filas, int columnas, int turno, char **vecErrores, int *mov)
+{
+	int datosInvalidos = 1;
+	char movimiento[MAX_MOVIMIENTOS];
+	
+	while (datosInvalidos != 0)
+	{
+		printf("Introduzca un movimiento: ");
+		scanf("%s", movimiento);
+		BORRAR_BUFFER;
+		datosInvalidos = ValidarParametros (movimiento, Tablero, filas, columnas, turno, vecErrores, mov);
+		if (datosInvalidos != 0)
+			ImprimirError(vecErrores, datosInvalidos);
+	}
 }
