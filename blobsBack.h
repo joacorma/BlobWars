@@ -1,46 +1,30 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
+#include "time.h"
 #include "getnum.h"
 #include <string.h>
 
-#define MAX_ERRORES 10
-#define MAX_MOVIMIENTOS 50
-
-#define BORRAR_BUFFER while (getchar()!='\n')
-
-
-void CapturarJugada (char ***Tablero, int filas, int columnas, int turno, char **vecErrores, int *mov);
+void CrearTablero (char ***Tablero, int filas, int columnas);
+void Jugar (char ***Tablero, int filas, int columnas, int turno, int *mov);
 int ValidarParametros (char movimiento[], char ***Tablero, int filas, int columnas, int turno, char **vecErrores, int *mov);
 int CalcularDistancia (int *mov);
 int Disponible (char ***Tablero, int fila, int columna);
 void CrearBlob (char ***Tablero ,int fila, int columna, int turno);
-void CambiarColor (char ***Tablero, int fila, int columna, int turno);
 void Adyacentes (char ***Tablero, int filas, int columnas, int turno, int fila, int columna);
 void Salto (char ***Tablero, int *mov);
 int Fin (char ***Tablero, int filas, int columnas, int turno);
 void Save ();
 
-void ImprimirTablero (char ***Tablero, int filas, int columnas)/*FRONT*/
-{
-	int i, j;
-	/*system("clear");*/
-	for (i=0; i<filas; i++)
-	{
-		for (j=0; j<columnas; j++)
-			printf("%c ", (*Tablero)[i][j]);
-		printf("\n");
-	}
-}
-
 void CrearTablero (char ***Tablero, int filas, int columnas)
 {
 	int i, j;
 	*Tablero=malloc(filas*sizeof(char*));
+	
 	for(i=0;i<filas;i++)
 	{
 		(*Tablero)[i]=malloc(columnas);
 	}
+	
 	for(i=0;i<filas;i++)
 	{
 		for (j=0; j<columnas; j++)
@@ -52,50 +36,16 @@ void CrearTablero (char ***Tablero, int filas, int columnas)
 	(*Tablero)[filas-1][0] = 'A';
 	(*Tablero)[filas-1][columnas-1] = 'Z';
 
-
 }
 
-void ProcesoDosJugadores (char ***Tablero, int filas, int columnas, int turno, char **vecErrores)
-{
-	int fin = 0, mov[4];
-
-	while (fin == 0)
-	{
-		ImprimirTablero(Tablero, filas, columnas);
-		printf("Turno Jugador %d\n", turno);
-
-		CapturarJugada (Tablero, filas, columnas, turno, vecErrores, mov);
-		
+void Jugar (char ***Tablero, int filas, int columnas, int turno, int *mov)
+{		
 		if (CalcularDistancia(mov) == 1)
 			CrearBlob(Tablero, mov[2], mov[3], turno);
 		else if (CalcularDistancia(mov) == 2)
 			Salto(Tablero, mov);
 
 		Adyacentes(Tablero, filas, columnas, turno, mov[2], mov[3]);
-
-		if (turno == 1)
-			turno = 2;
-		else
-			turno = 1;
-
-		fin = Fin(Tablero, filas, columnas, turno);
-	}
-	printf("Termino\n");
-}
-
-void CapturarJugada (char ***Tablero, int filas, int columnas, int turno, char **vecErrores, int *mov)
-{
-	int datosInvalidos = 1;
-	char movimiento[MAX_MOVIMIENTOS];
-	
-	while (datosInvalidos == 1)
-	{
-		printf("Introduzca un movimiento: ");
-		scanf("%s", movimiento);
-		BORRAR_BUFFER;
-		datosInvalidos = ValidarParametros (movimiento, Tablero, filas, columnas, turno, vecErrores, mov);
-
-	}
 }
 
 int ValidarParametros (char movimiento[], char ***Tablero, int filas, int columnas, int turno, char **vecErrores, int *mov)
@@ -114,19 +64,18 @@ int ValidarParametros (char movimiento[], char ***Tablero, int filas, int column
 		cantLeidos = sscanf(movimiento, "[%d,%d][%d,%d]", mov, mov+1, mov+2, mov+3);
 		
 		if (cantLeidos != 4)
-			ImprimirError (vecErrores, 3);
+			return 3;
 		else if ((mov[0] >= filas) || (mov[0] < 0) || (mov[1] >= columnas) || (mov[1] < 0) || (mov[2] >= filas) || (mov[2] < 0) || (mov[3] >= columnas) || (mov[3] < 0))
-			ImprimirError (vecErrores, 4);
+			return 4;
 		else if (((distancia = CalcularDistancia (mov)) != 1) && (distancia != 2))
-			ImprimirError (vecErrores, 5);
+			return 5;
 		else if (Disponible (Tablero, mov[0], mov[1]) != turno)
-			ImprimirError (vecErrores, 6);
+			return 6;
 		else if (Disponible (Tablero, mov[2], mov[3]) != 0)
-			ImprimirError (vecErrores, 7);
+			return 7;
 		else
 			return 0;
 	}
-	return 1;
 }
 
 int CalcularDistancia (int *mov)
@@ -156,11 +105,6 @@ void CrearBlob (char ***Tablero ,int fila, int columna, int turno)
 	(*Tablero)[fila][columna] = ((turno == 1) ? 'A' : 'Z');
 }
 
-void CambiarColor (char ***Tablero, int fila, int columna, int turno)
-{
-	(*Tablero)[fila][columna] = ((turno == 1) ? 'A' : 'Z');
-}
-
 void Adyacentes (char ***Tablero, int filas, int columnas, int turno, int fila, int columna)
 {
 	int i, j, blob;
@@ -173,7 +117,7 @@ void Adyacentes (char ***Tablero, int filas, int columnas, int turno, int fila, 
 			{
 				blob = Disponible(Tablero, i, j);
 				if ((blob != 0) && (abs(turno-blob) == 1))
-					CambiarColor(Tablero, i, j, turno);
+					CrearBlob(Tablero, i, j, turno);
 			}
 		}
 	}
@@ -191,33 +135,33 @@ void Salto (char ***Tablero, int *mov)
 int Fin (char ***Tablero, int filas, int columnas, int turno)
 {
 	int i, j, k, l;
- 	for (i=0; i<filas; i++)
+
+	for (i=0; i<filas; i++)
 	{
 		for (j=0; j<columnas; j++)
 		{
-		if ((*Tablero)[i][j] == ((turno == 1) ? 'A' : 'Z'))
-		{
-			for (k=(i-2); k<=(i+2); k++)
+			if ((*Tablero)[i][j] == ((turno == 1) ? 'A' : 'Z'))
 			{
-				if (k>=0 && k<filas)
+				for (k=(i-2); k<=(i+2); k++)
 				{
-					for (l=(j-2); l<=(j+2); l++)
+					if (k>=0 && k<filas)
 					{
-						if (l>=0 && l<columnas)	
-						{	
-							if (Disponible(Tablero, k, l) == 0)
-								return 0;
+						for (l=(j-2); l<=(j+2); l++)
+						{
+							if (l>=0 && l<columnas)	
+							{	
+								if (Disponible(Tablero, k, l) == 0)
+									return 0;
+							}
 						}
 					}
 				}
 			}
 		}
 	}
-}
-return 1;
+	return 1;
 
 }
- 
 
 void Save ()
 {
