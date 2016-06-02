@@ -23,7 +23,7 @@ void PantallaInicial ();
 int Pantalla11 ();
 int Pantalla12 ();
 void ImprimirTablero (char ***Tablero, int filas, int columnas);
-void CapturarJugada (char ***Tablero, int filas, int columnas, int turno, char **vecErrores, int *mov);
+int CapturarJugada (char ***Tablero, int filas, int columnas, int turno, char **vecErrores, int *mov);
 
 int main ()
 {
@@ -37,7 +37,14 @@ int main ()
 		PantallaInicial ();
 		printf("Elegir opcion: ");
 		opcion = getchar();
-		
+		BORRAR_BUFFER;
+		while (opcion < '1' || opcion > '4')
+		{
+			ImprimirError(vecErrores, 0);
+			printf("Elegir opcion: ");
+			opcion = getchar();
+			BORRAR_BUFFER;
+		}
 
 		switch(opcion)
 		{
@@ -48,8 +55,6 @@ int main ()
 			case '3': RecuperarJuego ();
 				break;
 			case '4': printf("Gracias por jugar al Blob Wars. Hasta pronto!\n");
-				break;
-			default: ImprimirError(vecErrores, 0);
 		}
 	}
 	return 0;
@@ -57,7 +62,7 @@ int main ()
 
 void DosJugadores (char **vecErrores, char ***Tablero)
 {	
-	int filas = Pantalla11(), columnas, turno, fin = 0, mov[4];
+	int filas = Pantalla11(), columnas, turno, fin = 0, mov[4], Ganador, accion;
 	srand (time (NULL));
 	
 	while ((filas < MIN_FILAS) || (filas > MAX_FILAS))
@@ -70,7 +75,7 @@ void DosJugadores (char **vecErrores, char ***Tablero)
 	while ((columnas < MIN_COLUMNAS) || (columnas > MAX_COLUMNAS))
 	{
 		ImprimirError(vecErrores, 2);
-		columnas = Pantalla11();
+		columnas = Pantalla12();
 	}
 
 	printf("\n");
@@ -87,7 +92,15 @@ void DosJugadores (char **vecErrores, char ***Tablero)
 		ImprimirTablero(Tablero, filas, columnas);
 		printf("Turno Jugador %d\n", turno);
 
-		CapturarJugada (Tablero, filas, columnas, turno, vecErrores, mov);
+		accion = CapturarJugada (Tablero, filas, columnas, turno, vecErrores, mov);
+		switch (accion)
+		{
+			case 0: break;
+			case 1: Save ();
+					break;
+			case 2: return;
+
+		}
 		
 		Jugar (Tablero, filas, columnas, turno, mov);
 
@@ -98,6 +111,17 @@ void DosJugadores (char **vecErrores, char ***Tablero)
 
 		fin = Fin(Tablero, filas, columnas, turno);
 	}
+
+	ImprimirTablero(Tablero, filas, columnas);
+	LLenarTablero (Tablero, filas, columnas, turno);
+	printf("\n");
+	ImprimirTablero(Tablero, filas, columnas);
+	
+	Ganador = ContarBlobs (Tablero, filas, columnas);
+	if (Ganador == 0)
+		printf("Hubo un empate\n");
+	else
+		printf("El ganador es el Jugador %d\n", Ganador);
 }
 
 void ContraLaCompu ()
@@ -124,13 +148,13 @@ void CargarErrores (char **vecErrores)
 
 void ImprimirError (char **vecErrores, int nroError)
 {
-	printf("ERROR: %s\n", vecErrores[nroError]);
+	printf("ERROR: %s\n\n", vecErrores[nroError]);
 
 }
 
 void PantallaInicial ()
 {
-	/*system("clear");*/
+	system("clear");
 
 	printf("BLOB WARS\n\n\n");
 	printf("1. Juego de dos jugadores\n");
@@ -159,7 +183,7 @@ void ImprimirTablero (char ***Tablero, int filas, int columnas)
 {
 	int i, j;
 	
-	/*system("clear");*/
+	system("clear");
 	for (i=0; i<filas; i++)
 	{
 		for (j=0; j<columnas; j++)
@@ -168,18 +192,19 @@ void ImprimirTablero (char ***Tablero, int filas, int columnas)
 	}
 }
 
-void CapturarJugada (char ***Tablero, int filas, int columnas, int turno, char **vecErrores, int *mov)
+int CapturarJugada (char ***Tablero, int filas, int columnas, int turno, char **vecErrores, int *mov)
 {
-	int datosInvalidos = 1;
+	int datosInvalidos = 3;
 	char movimiento[MAX_MOVIMIENTOS];
 	
-	while (datosInvalidos != 0)
+	while (datosInvalidos > 2)
 	{
 		printf("Introduzca un movimiento: ");
 		scanf("%s", movimiento);
 		BORRAR_BUFFER;
 		datosInvalidos = ValidarParametros (movimiento, Tablero, filas, columnas, turno, vecErrores, mov);
-		if (datosInvalidos != 0)
+		if (datosInvalidos > 2)
 			ImprimirError(vecErrores, datosInvalidos);
 	}
+	return datosInvalidos;
 }
