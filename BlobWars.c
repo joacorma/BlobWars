@@ -11,6 +11,7 @@
 #define MAX_FILAS 30
 #define MIN_COLUMNAS 5
 #define MAX_COLUMNAS 30
+#define BLOQUE 5
 
 #define BORRAR_BUFFER while (getchar()!='\n')
 
@@ -24,6 +25,8 @@ int Pantalla11 ();
 int Pantalla12 ();
 void ImprimirTablero (char ***Tablero, int filas, int columnas);
 int CapturarJugada (char ***Tablero, int filas, int columnas, int turno, char **vecErrores, int *mov);
+char * leerCaracteres ();
+int get_int ();
 
 int main ()
 {
@@ -32,29 +35,27 @@ int main ()
 
 	CargarErrores(vecErrores);
 	
-	while (opcion != '4')
+	while (opcion != 4)
 	{
 		PantallaInicial ();
 		printf("Elegir opcion: ");
-		opcion = getchar();
-		BORRAR_BUFFER;
-		while (opcion < '1' || opcion > '4')
+		opcion = get_int();
+		while (opcion < 1 || opcion > 4)
 		{
 			ImprimirError(vecErrores, 0);
 			printf("Elegir opcion: ");
-			opcion = getchar();
-			BORRAR_BUFFER;
+			opcion = get_int();
 		}
 
 		switch(opcion)
 		{
-			case '1': DosJugadores (vecErrores, &Tablero);
+			case 1: DosJugadores (vecErrores, &Tablero);
 				break;
-			case '2': ContraLaCompu ();
+			case 2: ContraLaCompu ();
 				break;
-			case '3': RecuperarJuego ();
+			case 3: RecuperarJuego ();
 				break;
-			case '4': printf("Gracias por jugar al Blob Wars. Hasta pronto!\n");
+			case 4: printf("Gracias por jugar al Blob Wars. Hasta pronto!\n");
 		}
 	}
 	return 0;
@@ -166,7 +167,8 @@ void PantallaInicial ()
 int Pantalla11 ()
 {
 	int fila;
-	fila = getint("Ingrese la cantidad de filas del tablero (entre 5 y 30): ");
+	printf("Ingrese la cantidad de filas del tablero (entre 5 y 30): ");
+	fila = get_int();
 	return fila;
 
 }
@@ -174,7 +176,8 @@ int Pantalla11 ()
 int Pantalla12 ()
 {
 	int col;
-	col = getint("Ingrese la cantidad de columnas del tablero (entre 5 y 30): ");
+	printf("Ingrese la cantidad de columnas del tablero (entre 5 y 30): -");
+	col = get_int();
 	return col;
 }
 
@@ -195,16 +198,53 @@ void ImprimirTablero (char ***Tablero, int filas, int columnas)
 int CapturarJugada (char ***Tablero, int filas, int columnas, int turno, char **vecErrores, int *mov)
 {
 	int datosInvalidos = 3;
-	char movimiento[MAX_MOVIMIENTOS];
+	char *movimiento = NULL;
 	
 	while (datosInvalidos > 2)
 	{
 		printf("Introduzca un movimiento: ");
-		scanf("%s", movimiento);
-		BORRAR_BUFFER;
+		movimiento = leerCaracteres(movimiento);
 		datosInvalidos = ValidarParametros (movimiento, Tablero, filas, columnas, turno, vecErrores, mov);
 		if (datosInvalidos > 2)
 			ImprimirError(vecErrores, datosInvalidos);
 	}
 	return datosInvalidos;
+}
+
+char * leerCaracteres (char *string)
+{
+	char *aux = NULL;
+	int i = 0, a;
+	while ((a=getchar()) != '\n')
+	{
+		if (i%BLOQUE == 0)
+		{
+			aux = realloc (string, (i+BLOQUE)*sizeof(char));
+			if (aux != NULL)
+				string = aux;
+		}
+		string[i++] = a;
+	}
+	string[i++] = 0;
+	string = realloc (string, i*sizeof(char));
+	return string;
+}
+
+int get_int ()
+{
+	int a, entero = 0;
+
+	while ((a=getchar()) != '\n')
+	{
+		if (isdigit(a))
+			entero = 10*entero + (a - '0');
+		else
+		{	
+			BORRAR_BUFFER;
+			return -1;
+		}
+	}
+
+	return entero;
+
 }
