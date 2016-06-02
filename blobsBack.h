@@ -53,15 +53,16 @@ void Jugar (char ***Tablero, int filas, int columnas, int turno, int *mov)
 int ValidarParametros (char movimiento[], char ***Tablero, int filas, int columnas, int turno, char **vecErrores, int *mov)
 {
 	int cantLeidos, distancia;
+	char corchete;
 
 	if (strcmp(movimiento, "save") == 0)
 		return 1;
 	else if (strcmp(movimiento, "quit") == 0)
 		return 2;
 	
-	cantLeidos = sscanf(movimiento, "[%d,%d][%d,%d]", mov, mov+1, mov+2, mov+3);
+	cantLeidos = sscanf(movimiento, "[%d,%d][%d,%d%c", mov, mov+1, mov+2, mov+3, &corchete);
 		
-	if (cantLeidos != 4)
+	if (cantLeidos != 5 && corchete != ']')
 		return 3;
 	else if ((mov[0] >= filas) || (mov[0] < 0) || (mov[1] >= columnas) || (mov[1] < 0) || (mov[2] >= filas) || (mov[2] < 0) || (mov[3] >= columnas) || (mov[3] < 0))
 		return 4;
@@ -205,5 +206,38 @@ void Save (/*char ***Tablero,int filas,int columnas, int turno*/)
 	}
 	fprintf(fPointer, "%d,%d,%d", filas, columnas, turno);
 	fclose(fPointer);*/
-	printf("Partida guardada\n");
+	printf("Partida guardada. Pulse enter para continuar...\n");
+	getchar();
 }
+
+/*char save[]="save "
+while (*movimiento != 0)
+{
+	switch (estado)
+	{
+		case SAVE:
+		{
+			if (*save == 0)
+				estado = FILENAME;
+			else if (*movimiento == *save)
+			{
+				*movimiento++;
+				*save++;
+			}
+			else
+			{
+				return 0;
+			}
+		}
+		break;
+
+		case FILENAME:
+		{
+				movimiento[i++] = movimiento[j++];
+		}
+		break;
+	}
+}
+movimiento[i++] = 0;
+movimiento = realloc (movimiento, i*sizeof(char)); 
+return movimiento;*/
