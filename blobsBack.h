@@ -13,7 +13,9 @@ void CrearBlob (char ***Tablero ,int fila, int columna, int turno);
 void Adyacentes (char ***Tablero, int filas, int columnas, int turno, int fila, int columna);
 void Salto (char ***Tablero, int *mov);
 int Fin (char ***Tablero, int filas, int columnas, int turno);
-void Save (char ***Tablero,int filas,int columnas,int turno,char *opcion);
+void LLenarTablero (char ***Tablero, int filas, int columnas, int turno);
+int ContarBlobs (char ***Tablero, int filas, int columnas);
+void Save (/*char ***Tablero,int filas,int columnas, int turno*/);
 
 void CrearTablero (char ***Tablero, int filas, int columnas)
 {
@@ -53,29 +55,24 @@ int ValidarParametros (char movimiento[], char ***Tablero, int filas, int column
 	int cantLeidos, distancia;
 
 	if (strcmp(movimiento, "save") == 0)
-		Save ();
+		return 1;
 	else if (strcmp(movimiento, "quit") == 0)
-	{
-		printf("Gracias por jugar al Blob Wars. Hasta pronto!\n");
-		return 0;
-	}
-	else
-	{
-		cantLeidos = sscanf(movimiento, "[%d,%d][%d,%d]", mov, mov+1, mov+2, mov+3);
+		return 2;
+	
+	cantLeidos = sscanf(movimiento, "[%d,%d][%d,%d]", mov, mov+1, mov+2, mov+3);
 		
-		if (cantLeidos != 4)
-			return 3;
-		else if ((mov[0] >= filas) || (mov[0] < 0) || (mov[1] >= columnas) || (mov[1] < 0) || (mov[2] >= filas) || (mov[2] < 0) || (mov[3] >= columnas) || (mov[3] < 0))
-			return 4;
-		else if (((distancia = CalcularDistancia (mov)) != 1) && (distancia != 2))
-			return 5;
-		else if (Disponible (Tablero, mov[0], mov[1]) != turno)
-			return 6;
-		else if (Disponible (Tablero, mov[2], mov[3]) != 0)
-			return 7;
-		else
-			return 0;
-	}
+	if (cantLeidos != 4)
+		return 3;
+	else if ((mov[0] >= filas) || (mov[0] < 0) || (mov[1] >= columnas) || (mov[1] < 0) || (mov[2] >= filas) || (mov[2] < 0) || (mov[3] >= columnas) || (mov[3] < 0))
+		return 4;
+	else if (CalcularDistancia (mov) == 0)
+		return 5;
+	else if (Disponible (Tablero, mov[0], mov[1]) != turno)
+		return 6;
+	else if (Disponible (Tablero, mov[2], mov[3]) != 0)
+		return 7;
+	
+	return 0;
 }
 
 int CalcularDistancia (int *mov)
@@ -160,12 +157,41 @@ int Fin (char ***Tablero, int filas, int columnas, int turno)
 		}
 	}
 	return 1;
-
 }
 
-void Save (char ***Tablero,int filas,int columnas, int turno, char *opcion)
+void LLenarTablero (char ***Tablero, int filas, int columnas, int turno)
 {
 	int i, j;
+
+	for (i=0; i<filas; i++)
+	{
+		for (j=0; j<columnas; j++)
+		{
+			if ((*Tablero)[i][j] == '0')
+				(*Tablero)[i][j] = ((turno == 1) ? 'Z' : 'A');
+		}
+	}
+}
+
+int ContarBlobs (char ***Tablero, int filas, int columnas)
+{
+	int i, j, jugador1=0, jugador2;
+
+	for (i=0; i<filas; i++)
+	{
+		for (j=0; j<columnas; j++)
+		{
+			if ((*Tablero)[i][j] == 'A')
+				jugador1++;
+		}
+	}
+	jugador2 = (filas * columnas) - jugador1;
+	return ((jugador1 > jugador2) ? 1 : ((jugador1 < jugador2) ? 2 : 0));
+}
+
+void Save (/*char ***Tablero,int filas,int columnas, int turno*/)
+{
+	/*int i, j;
 	printf("Save\n");
 	FILE = *fPointer;
 	fPointer = fopen("PartidaSalvada.txt","w");
@@ -178,6 +204,6 @@ void Save (char ***Tablero,int filas,int columnas, int turno, char *opcion)
 		fprintf(fPointer, "\n");
 	}
 	fprintf(fPointer, "%d,%d,%d", filas, columnas, turno);
-	fclose(fPointer);
-	*opcion='4';
+	fclose(fPointer);*/
+	printf("Partida guardada\n");
 }
