@@ -19,7 +19,7 @@ int Fin (char ***Tablero, int filas, int columnas, int turno);
 void LLenarTablero (char ***Tablero, int filas, int columnas, int turno);
 int ContarBlobs (char ***Tablero, int filas, int columnas);
 int ValidarSave(char **movimiento);
-void Save (/*char ***Tablero,int filas,int columnas, int turno*/);
+void Save (/*char ***Tablero,int filas,int columnas, int turno, char  *movimiento*/);
 
 void CrearTablero (char ***Tablero, int filas, int columnas)
 {
@@ -194,12 +194,12 @@ int ContarBlobs (char ***Tablero, int filas, int columnas)
 	return ((jugador1 > jugador2) ? 1 : ((jugador1 < jugador2) ? 2 : 0));
 }
 
-void Save (/*char ***Tablero,int filas,int columnas, int turno*/)
+void Save (/*char ***Tablero,int filas,int columnas, int turno, char  *movimiento*/)
 {
 	/*int i, j;
 	printf("Save\n");
-	FILE = *fPointer;
-	fPointer = fopen("PartidaSalvada.txt","w");
+	FILE *fPointer;
+	fPointer = fopen(movimiento,"w");
 	for(i=0;i<filas;i++)
 	{
 		for(j=0;j<columnas;j++)
@@ -209,9 +209,9 @@ void Save (/*char ***Tablero,int filas,int columnas, int turno*/)
 		fprintf(fPointer, "\n");
 	}
 	fprintf(fPointer, "%d,%d,%d", filas, columnas, turno);
-	fclose(fPointer);*/
+	fclose(fPointer);
 	printf("Partida guardada. Pulse enter para continuar...\n");
-	getchar();
+	getchar();*/
 }
 
 int ValidarSave(char **movimiento)
