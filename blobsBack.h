@@ -4,6 +4,9 @@
 #include "getnum.h"
 #include <string.h>
 
+#define SAVE 0
+#define FILENAME 1
+
 void CrearTablero (char ***Tablero, int filas, int columnas);
 void Jugar (char ***Tablero, int filas, int columnas, int turno, int *mov);
 int ValidarParametros (char movimiento[], char ***Tablero, int filas, int columnas, int turno, char **vecErrores, int *mov);
@@ -15,6 +18,7 @@ void Salto (char ***Tablero, int *mov);
 int Fin (char ***Tablero, int filas, int columnas, int turno);
 void LLenarTablero (char ***Tablero, int filas, int columnas, int turno);
 int ContarBlobs (char ***Tablero, int filas, int columnas);
+int ValidarSave(char **movimiento);
 void Save (/*char ***Tablero,int filas,int columnas, int turno*/);
 
 void CrearTablero (char ***Tablero, int filas, int columnas)
@@ -55,7 +59,7 @@ int ValidarParametros (char movimiento[], char ***Tablero, int filas, int column
 	int cantLeidos, distancia;
 	char corchete;
 
-	if (strcmp(movimiento, "save") == 0)
+	if (ValidarSave (&movimiento) == 0)
 		return 1;
 	else if (strcmp(movimiento, "quit") == 0)
 		return 2;
@@ -210,34 +214,32 @@ void Save (/*char ***Tablero,int filas,int columnas, int turno*/)
 	getchar();
 }
 
-/*char save[]="save "
-while (*movimiento != 0)
+int ValidarSave(char **movimiento)
 {
-	switch (estado)
+	char * save = "save ";
+	int estado = SAVE, i = 0, j = 0;
+	
+	while ((*movimiento)[i] != 0)
 	{
-		case SAVE:
+		switch (estado)
 		{
-			if (*save == 0)
-				estado = FILENAME;
-			else if (*movimiento == *save)
+			case SAVE:
 			{
-				*movimiento++;
-				*save++;
+				if (save[i] == 0)
+					estado = FILENAME;
+				else if ((*movimiento)[i] == save[i])
+					i++;
+				else
+					return 1;
 			}
-			else
-			{
-				return 0;
-			}
-		}
-		break;
+			break;
 
-		case FILENAME:
-		{
-				movimiento[i++] = movimiento[j++];
+			case FILENAME:
+				(*movimiento)[j++] = (*movimiento)[i++];
+			break;
 		}
-		break;
 	}
+	(*movimiento)[j++] = 0;
+	*movimiento = realloc (*movimiento, j*sizeof(char)); 
+	return 0;
 }
-movimiento[i++] = 0;
-movimiento = realloc (movimiento, i*sizeof(char)); 
-return movimiento;*/
