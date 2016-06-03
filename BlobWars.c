@@ -61,7 +61,8 @@ int main ()
 				error = RecuperarJuego (nombre,&Tablero,&filas, &columnas, &turno, &opcion,vecErrores);
 				if (error==8)
 					ImprimirError(vecErrores, error);
-				break;
+					getchar();
+				break;/*ACA QUIERO QUE LOOPEE EN CASE 3 HASTA QUE ESCRIBA BIEN EL NOMBRE Y DESPUES MIRE LA OPCION (CARGADA) Y VAYA AHI*/
 			case 4: printf("Gracias por jugar al Blob Wars. Hasta pronto!\n");
 		}
 	}
