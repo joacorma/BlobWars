@@ -17,22 +17,22 @@
 
 #define BORRAR_BUFFER while (getchar()!='\n')
 
-void DosJugadores (char **vecErrores, char ***Tablero, int *filas, int *columnas, int *opcion);
+void DosJugadores (char **vecErrores, char ***Tablero, int *filas, int *columnas, int *turno, int *opcion);
 void ContraLaCompu ();
-void RecuperarJuego ();
+int RecuperarJuego(char *nombre, char ***Tablero, int *filas, int *columnas, int *turno, int *opcion, char **vecErrores);
 void CargarErrores (char **vecErrores);
 void ImprimirError (char **vecErrores, int nroError);
 void PantallaInicial ();
 int Pantalla11 ();
 int Pantalla12 ();
-void ImprimirTablero (char ***Tablero, int filas, int columnas);
-int CapturarJugada (char ***Tablero, int filas, int columnas, int turno, char **vecErrores, int *mov, char **movimiento);
+void ImprimirTablero (char ***Tablero, int *filas, int *columnas);
+int CapturarJugada (char ***Tablero, int *filas, int *columnas, int *turno, char **vecErrores, int *mov, char **movimiento);
 char ** leerCaracteres (char **string);
 int get_int ();
 
 int main ()
 {
-	int opcion = 0, filas=0, columnas=0, turno=0;
+	int opcion = 0, filas=0, columnas=0, turno=0, error;
 	char *vecErrores[MAX_ERRORES], **Tablero, *nombre;
 
 	CargarErrores(vecErrores);
@@ -51,13 +51,16 @@ int main ()
 
 		switch(opcion)
 		{
-			case 1: DosJugadores (vecErrores, &Tablero, &filas,&columnas,&opcion);
+			case 1: DosJugadores (vecErrores, &Tablero, &filas,&columnas,&turno, &opcion);
 				break;
 			case 2: ContraLaCompu ();
 				break;
-			case 3: 
-				leerCaracteres(&nombreArchivo);
-				RecuperarJuego (nombreArchivo,&Tablero,&filas, &columnas, &turno, &opcion);
+			case 3:
+				printf("%s\n", "Escriba el nombre del archivo: ");
+				leerCaracteres(&nombre);
+				error = RecuperarJuego (nombre,&Tablero,&filas, &columnas, &turno, &opcion,vecErrores);
+				if (error==8)
+					ImprimirError(vecErrores, error);
 				break;
 			case 4: printf("Gracias por jugar al Blob Wars. Hasta pronto!\n");
 		}
@@ -68,22 +71,25 @@ int main ()
 void DosJugadores (char **vecErrores, char ***Tablero, int *filas, int *columnas, int *turno, int *opcion)
 {	
 	int fin = 0, mov[4], Ganador, accion;
-	if(*filas==0)
-		*filas = Pantalla11();
 	srand (time (NULL));
-	
-	while ((filas < MIN_FILAS) || (filas > MAX_FILAS))
-	{
-		ImprimirError(vecErrores, 1);
-		filas = Pantalla11();
-	}
 
-	if(*columnas==0)
-		*columnas = Pantalla12();
-	while ((columnas < MIN_COLUMNAS) || (columnas > MAX_COLUMNAS))
+	if(*filas==0)
 	{
-		ImprimirError(vecErrores, 2);
-		columnas = Pantalla12();
+		*filas = Pantalla11();
+		while ((*filas < MIN_FILAS) || (*filas > MAX_FILAS))
+		{
+			ImprimirError(vecErrores, 1);
+			*filas = Pantalla11();
+		}
+	}
+	if(*columnas==0)
+	{
+		*columnas = Pantalla12();
+		while ((*columnas < MIN_COLUMNAS) || (*columnas > MAX_COLUMNAS))
+		{
+			ImprimirError(vecErrores, 2);
+			*columnas = Pantalla12();
+		}
 	}
 
 	printf("\n");
@@ -100,7 +106,7 @@ void DosJugadores (char **vecErrores, char ***Tablero, int *filas, int *columnas
 	while (fin == 0)
 	{
 		ImprimirTablero(Tablero, filas, columnas);
-		printf("Turno Jugador %d\n", turno);
+		printf("Turno Jugador %d\n", *turno);
 		char *movimiento = NULL;
 
 		accion = CapturarJugada (Tablero, filas, columnas, turno, vecErrores, mov, &movimiento);
@@ -110,10 +116,10 @@ void DosJugadores (char **vecErrores, char ***Tablero, int *filas, int *columnas
 			case 1: 
 			{
 				Save (Tablero, filas, columnas, turno, movimiento, opcion);
-				if (turno == 1)
-					turno = 2;
+				if (*turno == 1)
+					*turno = 2;
 				else
-					turno = 1;
+					*turno = 1;
 
 			}
 					break;
@@ -123,10 +129,10 @@ void DosJugadores (char **vecErrores, char ***Tablero, int *filas, int *columnas
 		
 		Jugar (Tablero, filas, columnas, turno, mov);
 
-		if (turno == 1)
-			turno = 2;
+		if (*turno == 1)
+			*turno = 2;
 		else
-			turno = 1;
+			*turno = 1;
 
 		fin = Fin(Tablero, filas, columnas, turno);
 	}
@@ -148,10 +154,6 @@ void ContraLaCompu ()
 	printf("Proceso 2\n");
 }
 
-void RecuperarJuego ()
-{
-	printf("Proceso 3\n");
-}
 
 void CargarErrores (char **vecErrores)
 {
@@ -195,26 +197,26 @@ int Pantalla11 ()
 int Pantalla12 ()
 {
 	int col;
-	printf("Ingrese la cantidad de columnas del tablero (entre 5 y 30): -");
+	printf("Ingrese la cantidad de columnas del tablero (entre 5 y 30): ");
 	col = get_int();
 	return col;
 }
 
 
-void ImprimirTablero (char ***Tablero, int filas, int columnas)
+void ImprimirTablero (char ***Tablero, int *filas, int *columnas)
 {
 	int i, j;
 	
 	system("clear");
-	for (i=0; i<filas; i++)
+	for (i=0; i<*filas; i++)
 	{
-		for (j=0; j<columnas; j++)
+		for (j=0; j<*columnas; j++)
 			printf("%c ", (*Tablero)[i][j]);
 		printf("\n");
 	}
 }
 
-int CapturarJugada (char ***Tablero, int filas, int columnas, int turno, char **vecErrores, int *mov, char **movimiento)
+int CapturarJugada (char ***Tablero, int *filas, int *columnas, int *turno, char **vecErrores, int *mov, char **movimiento)
 {
 	int datosInvalidos = 3;
 	
