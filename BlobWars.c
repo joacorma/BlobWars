@@ -5,13 +5,14 @@
 #include <string.h>
 #include "blobsBack.h"
 
-#define MAX_ERRORES 10
-#define MAX_MOVIMIENTOS 50
+#define MAX_ERRORES 8
 #define MIN_FILAS 5
 #define MAX_FILAS 30
 #define MIN_COLUMNAS 5
 #define MAX_COLUMNAS 30
 #define BLOQUE 5
+#define SAVE 0
+#define FILENAME 1
 
 #define BORRAR_BUFFER while (getchar()!='\n')
 
@@ -97,7 +98,15 @@ void DosJugadores (char **vecErrores, char ***Tablero)
 		switch (accion)
 		{
 			case 0: break;
-			case 1: Save ();
+			case 1: 
+			{
+				Save ();
+				if (turno == 1)
+					turno = 2;
+				else
+					turno = 1;
+
+			}
 					break;
 			case 2: return;
 
