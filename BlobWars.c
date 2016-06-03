@@ -4,6 +4,7 @@
 #include "getnum.h"
 #include <string.h>
 #include "blobsBack.h"
+#include <ctype.h>
 
 #define MAX_ERRORES 8
 #define MIN_FILAS 5
@@ -25,8 +26,8 @@ void PantallaInicial ();
 int Pantalla11 ();
 int Pantalla12 ();
 void ImprimirTablero (char ***Tablero, int filas, int columnas);
-int CapturarJugada (char ***Tablero, int filas, int columnas, int turno, char **vecErrores, int *mov);
-char * leerCaracteres ();
+int CapturarJugada (char ***Tablero, int filas, int columnas, int turno, char **vecErrores, int *mov, char **movimiento);
+char ** leerCaracteres (char **string);
 int get_int ();
 
 int main ()
@@ -93,14 +94,15 @@ void DosJugadores (char **vecErrores, char ***Tablero)
 	{
 		ImprimirTablero(Tablero, filas, columnas);
 		printf("Turno Jugador %d\n", turno);
+		char *movimiento = NULL;
 
-		accion = CapturarJugada (Tablero, filas, columnas, turno, vecErrores, mov);
+		accion = CapturarJugada (Tablero, filas, columnas, turno, vecErrores, mov, &movimiento);
 		switch (accion)
 		{
 			case 0: break;
 			case 1: 
 			{
-				Save ();
+				Save (Tablero, filas, columnas, turno, movimiento);
 				if (turno == 1)
 					turno = 2;
 				else
@@ -204,23 +206,24 @@ void ImprimirTablero (char ***Tablero, int filas, int columnas)
 	}
 }
 
-int CapturarJugada (char ***Tablero, int filas, int columnas, int turno, char **vecErrores, int *mov)
+int CapturarJugada (char ***Tablero, int filas, int columnas, int turno, char **vecErrores, int *mov, char **movimiento)
 {
 	int datosInvalidos = 3;
-	char *movimiento = NULL;
+	
 	
 	while (datosInvalidos > 2)
 	{
 		printf("Introduzca un movimiento: ");
 		movimiento = leerCaracteres(movimiento);
 		datosInvalidos = ValidarParametros (movimiento, Tablero, filas, columnas, turno, vecErrores, mov);
+		printf("%s\n", *movimiento);
 		if (datosInvalidos > 2)
 			ImprimirError(vecErrores, datosInvalidos);
 	}
 	return datosInvalidos;
 }
 
-char * leerCaracteres (char *string)
+char ** leerCaracteres (char **string)
 {
 	char *aux = NULL;
 	int i = 0, a;
@@ -228,14 +231,14 @@ char * leerCaracteres (char *string)
 	{
 		if (i%BLOQUE == 0)
 		{
-			aux = realloc (string, (i+BLOQUE)*sizeof(char));
+			aux = realloc (*string, (i+BLOQUE)*sizeof(char));
 			if (aux != NULL)
-				string = aux;
+				*string = aux;
 		}
-		string[i++] = a;
+		(*string)[i++] = a;
 	}
-	string[i++] = 0;
-	string = realloc (string, i*sizeof(char));
+	(*string)[i++] = 0;
+	*string = realloc (*string, i*sizeof(char));
 	return string;
 }
 

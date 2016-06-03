@@ -9,7 +9,7 @@
 
 void CrearTablero (char ***Tablero, int filas, int columnas);
 void Jugar (char ***Tablero, int filas, int columnas, int turno, int *mov);
-int ValidarParametros (char movimiento[], char ***Tablero, int filas, int columnas, int turno, char **vecErrores, int *mov);
+int ValidarParametros (char **movimiento, char ***Tablero, int filas, int columnas, int turno, char **vecErrores, int *mov);
 int CalcularDistancia (int *mov);
 int Disponible (char ***Tablero, int fila, int columna);
 void CrearBlob (char ***Tablero ,int fila, int columna, int turno);
@@ -19,7 +19,7 @@ int Fin (char ***Tablero, int filas, int columnas, int turno);
 void LLenarTablero (char ***Tablero, int filas, int columnas, int turno);
 int ContarBlobs (char ***Tablero, int filas, int columnas);
 int ValidarSave(char **movimiento);
-void Save (/*char ***Tablero,int filas,int columnas, int turno, char  *movimiento*/);
+void Save (char ***Tablero,int filas,int columnas, int turno, char  *movimiento);
 
 void CrearTablero (char ***Tablero, int filas, int columnas)
 {
@@ -54,17 +54,17 @@ void Jugar (char ***Tablero, int filas, int columnas, int turno, int *mov)
 		Adyacentes(Tablero, filas, columnas, turno, mov[2], mov[3]);
 }
 
-int ValidarParametros (char movimiento[], char ***Tablero, int filas, int columnas, int turno, char **vecErrores, int *mov)
+int ValidarParametros (char **movimiento, char ***Tablero, int filas, int columnas, int turno, char **vecErrores, int *mov)
 {
 	int cantLeidos, distancia;
 	char corchete;
 
-	if (ValidarSave (&movimiento) == 0)
+	if (ValidarSave (movimiento) == 0)
 		return 1;
-	else if (strcmp(movimiento, "quit") == 0)
+	else if (strcmp(*movimiento, "quit") == 0)
 		return 2;
 	
-	cantLeidos = sscanf(movimiento, "[%d,%d][%d,%d%c", mov, mov+1, mov+2, mov+3, &corchete);
+	cantLeidos = sscanf(*movimiento, "[%d,%d][%d,%d%c", mov, mov+1, mov+2, mov+3, &corchete);
 		
 	if (cantLeidos != 5 && corchete != ']')
 		return 3;
@@ -194,9 +194,9 @@ int ContarBlobs (char ***Tablero, int filas, int columnas)
 	return ((jugador1 > jugador2) ? 1 : ((jugador1 < jugador2) ? 2 : 0));
 }
 
-void Save (/*char ***Tablero,int filas,int columnas, int turno, char  *movimiento*/)
+void Save (char ***Tablero,int filas,int columnas, int turno, char  *movimiento)
 {
-	/*int i, j;
+	int i, j;
 	printf("Save\n");
 	FILE *fPointer;
 	fPointer = fopen(movimiento,"w");
@@ -211,7 +211,7 @@ void Save (/*char ***Tablero,int filas,int columnas, int turno, char  *movimient
 	fprintf(fPointer, "%d,%d,%d", filas, columnas, turno);
 	fclose(fPointer);
 	printf("Partida guardada. Pulse enter para continuar...\n");
-	getchar();*/
+	getchar();
 }
 
 int ValidarSave(char **movimiento)
