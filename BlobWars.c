@@ -6,7 +6,7 @@
 #include "blobsBack.h"
 #include <ctype.h>
 
-#define MAX_ERRORES 8
+#define MAX_ERRORES 9
 #define MIN_FILAS 5
 #define MAX_FILAS 30
 #define MIN_COLUMNAS 5
@@ -17,7 +17,7 @@
 
 #define BORRAR_BUFFER while (getchar()!='\n')
 
-void DosJugadores (char **vecErrores, char ***Tablero);
+void DosJugadores (char **vecErrores, char ***Tablero, int *filas, int *columnas, int *opcion);
 void ContraLaCompu ();
 void RecuperarJuego ();
 void CargarErrores (char **vecErrores);
@@ -32,8 +32,8 @@ int get_int ();
 
 int main ()
 {
-	int opcion = 0;
-	char *vecErrores[MAX_ERRORES], **Tablero;
+	int opcion = 0, filas=0, columnas=0, turno=0;
+	char *vecErrores[MAX_ERRORES], **Tablero, *nombre;
 
 	CargarErrores(vecErrores);
 	
@@ -51,11 +51,13 @@ int main ()
 
 		switch(opcion)
 		{
-			case 1: DosJugadores (vecErrores, &Tablero);
+			case 1: DosJugadores (vecErrores, &Tablero, &filas,&columnas,&opcion);
 				break;
 			case 2: ContraLaCompu ();
 				break;
-			case 3: RecuperarJuego ();
+			case 3: 
+				leerCaracteres(&nombreArchivo);
+				RecuperarJuego (nombreArchivo,&Tablero,&filas, &columnas, &turno, &opcion);
 				break;
 			case 4: printf("Gracias por jugar al Blob Wars. Hasta pronto!\n");
 		}
@@ -63,9 +65,11 @@ int main ()
 	return 0;
 }
 
-void DosJugadores (char **vecErrores, char ***Tablero)
+void DosJugadores (char **vecErrores, char ***Tablero, int *filas, int *columnas, int *turno, int *opcion)
 {	
-	int filas = Pantalla11(), columnas, turno, fin = 0, mov[4], Ganador, accion;
+	int fin = 0, mov[4], Ganador, accion;
+	if(*filas==0)
+		*filas = Pantalla11();
 	srand (time (NULL));
 	
 	while ((filas < MIN_FILAS) || (filas > MAX_FILAS))
@@ -74,7 +78,8 @@ void DosJugadores (char **vecErrores, char ***Tablero)
 		filas = Pantalla11();
 	}
 
-	columnas = Pantalla12();
+	if(*columnas==0)
+		*columnas = Pantalla12();
 	while ((columnas < MIN_COLUMNAS) || (columnas > MAX_COLUMNAS))
 	{
 		ImprimirError(vecErrores, 2);
@@ -85,10 +90,12 @@ void DosJugadores (char **vecErrores, char ***Tablero)
 	printf("Jugador 1: A\n");
 	printf("Jugador 2: Z\n");
 
-	CrearTablero (Tablero, filas, columnas);
+	if(*Tablero==NULL)
+		CrearTablero (Tablero, filas, columnas);
 	printf("\n");
 	
-	turno = rand()%2 + 1; /*RANDINT*/
+	if(*turno==0)
+		*turno = rand()%2 + 1; /*RANDINT*/
 
 	while (fin == 0)
 	{
@@ -102,7 +109,7 @@ void DosJugadores (char **vecErrores, char ***Tablero)
 			case 0: break;
 			case 1: 
 			{
-				Save (Tablero, filas, columnas, turno, movimiento);
+				Save (Tablero, filas, columnas, turno, movimiento, opcion);
 				if (turno == 1)
 					turno = 2;
 				else
@@ -156,6 +163,7 @@ void CargarErrores (char **vecErrores)
 	vecErrores[5] = "Ese movimiento no esta dentro del rango de movimientos posibles";
 	vecErrores[6] = "Ese casillero no corresponde a un Blob de tu color";
 	vecErrores[7] = "Ese casillero ya esta ocupado";
+	vecErrores[8] = "El archivo indicado no fue encontrado, por favor introduzca un nuevo nombre";
 }
 
 void ImprimirError (char **vecErrores, int nroError)

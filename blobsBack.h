@@ -20,6 +20,7 @@ void LLenarTablero (char ***Tablero, int filas, int columnas, int turno);
 int ContarBlobs (char ***Tablero, int filas, int columnas);
 int ValidarSave(char **movimiento);
 void Save (char ***Tablero,int filas,int columnas, int turno, char  *movimiento);
+void RecuperarJuego(char *nombre, char ***Tablero, int *filas, int *columnas, int *turno, int *opcion);
 
 void CrearTablero (char ***Tablero, int filas, int columnas)
 {
@@ -194,12 +195,13 @@ int ContarBlobs (char ***Tablero, int filas, int columnas)
 	return ((jugador1 > jugador2) ? 1 : ((jugador1 < jugador2) ? 2 : 0));
 }
 
-void Save (char ***Tablero,int filas,int columnas, int turno, char  *movimiento)
+void Save (char ***Tablero,int filas,int columnas, int turno, char  *movimiento, int opcion)
 {
 	int i, j;
 	printf("Save\n");
 	FILE *fPointer;
 	fPointer = fopen(movimiento,"w");
+	fprintf(fPointer, "%d,%d,%d,%d\n", filas, columnas, turno, opcion);
 	for(i=0;i<filas;i++)
 	{
 		for(j=0;j<columnas;j++)
@@ -208,7 +210,6 @@ void Save (char ***Tablero,int filas,int columnas, int turno, char  *movimiento)
 		}
 		fprintf(fPointer, "\n");
 	}
-	fprintf(fPointer, "%d,%d,%d", filas, columnas, turno);
 	fclose(fPointer);
 	printf("Partida guardada. Pulse enter para continuar...\n");
 	getchar();
@@ -242,4 +243,76 @@ int ValidarSave(char **movimiento)
 	(*movimiento)[j++] = 0;
 	*movimiento = realloc (*movimiento, j*sizeof(char)); 
 	return 0;
+}
+
+void RecuperarJuego(char *nombre, char ***Tablero, int *filas, int *columnas, int *turno, int *opcion, char **vectorErrores)
+{
+	int i=0, j=0, caracter;
+	char c;
+	printf("Este es el nombre:%s\n", nombre);
+	FILE *fPointer;
+	fPointer = fopen(nombre, "r");
+	if(fPointer==NULL)
+	{
+		nroError=8;
+		ImprimirError (char **vecErrores, int nroError)
+	}
+	while((c=fgetc(fPointer))!='\n')
+	{
+		switch(caracter)
+		{
+			case 0:
+			{
+				*filas=(int)(c-'0');
+				caracter++;
+				break;
+			}
+			case 2:
+			{
+				*columnas=(int)(c-'0');
+				caracter++;
+				break;
+			}
+			case 4:
+			{
+				*turno=(int)(c-'0');
+				caracter++;
+				break;
+			}
+			case 6:
+			{
+				*opcion=(int)(c-'0');
+				caracter++;
+				break;
+			}
+			default:
+			{
+				caracter++;
+				break;
+			}
+		}
+	}
+
+	*Tablero=malloc((*filas)*sizeof(char*));
+
+	for(i=0;i<*filas;i++)
+	{
+		(*Tablero)[i]=malloc(*columnas);
+	}
+	i=0;
+	j=0;
+	while((c=fgetc(fPointer))!=EOF)
+	{
+		if(c=='\n')
+		{
+			i++;
+			j=0;
+		}	
+		else if(c!=' ')
+		{
+			(*Tablero)[i][j] = c;
+			j++;
+		}
+	}
+	fclose(fPointer);	
 }
