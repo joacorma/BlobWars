@@ -4,13 +4,9 @@
 #include "getnum.h"
 #include <string.h>
 #include <math.h>
-typedef struct
-	{	
-		int filas;
-		int columnas;
-		int **matriz;
-	} tipoMatriz;
-#include "blobsBackV3.h"
+#include "blobsBack.h"
+#include <ctype.h>
+
 
 #define MAX_ERRORES 8
 #define MIN_FILAS 5
@@ -26,15 +22,14 @@ typedef struct
 #define GENERAR_FILA(x) (floor(x/100))
 #define GENERAR_COLUMNA(x) (x%100)
 
-void ProcesoJuego (char **vecErrores, int opcion, char *idJugador);
-void RecuperarJuego ();
+void ProcesoJuego (char **vecErrores, int *opcion, char *idJugador, tipoMatriz *Tablero, int *turno);
 void CargarErrores (char **vecErrores);
 void ImprimirError (char **vecErrores, int nroError);
 void PantallaInicial ();
 int Pantalla11 ();
 int Pantalla12 ();
 void ImprimirTablero (tipoMatriz *Tablero, char *idJugador);
-int CapturarJugada (tipoMatriz *Tablero, int turno, char **vecErrores, int *mov);
+int CapturarJugada (tipoMatriz *Tablero, int *turno, char **vecErrores, int *mov, char **movimiento);
 char * leerCaracteres ();
 int get_int ();
 
@@ -42,6 +37,8 @@ int main ()
 {
 	int opcion = 0;
 	char *vecErrores[MAX_ERRORES], idJugador[] = {'0', 'A', 'Z'};
+	int turno=0;
+	tipoMatriz Tablero;
 
 	CargarErrores(vecErrores);
 	
@@ -59,11 +56,11 @@ int main ()
 
 		switch(opcion)
 		{
-			case 1: ProcesoJuego (vecErrores, opcion, idJugador);
+			case 1: ProcesoJuego (vecErrores, &opcion, idJugador, &Tablero, &turno);
 				break;
-			case 2: ProcesoJuego (vecErrores, opcion, idJugador);
+			case 2: ProcesoJuego (vecErrores, &opcion, idJugador, &Tablero, &turno);
 				break;
-			case 3: RecuperarJuego ();
+			case 3: RecuperarJuego(&Tablero, &turno, &opcion, vecErrores);
 				break;
 			case 4: printf("Gracias por jugar al Blob Wars. Hasta pronto!\n");
 		}
@@ -71,63 +68,63 @@ int main ()
 	return 0;
 }
 
-void ProcesoJuego (char **vecErrores, int opcion, char *idJugador)
+void ProcesoJuego (char **vecErrores, int *opcion, char *idJugador, tipoMatriz *Tablero, int *turno)
 {	
-	tipoMatriz Tablero;
-	int turno, fin = 0, mov[4], Ganador, accion;
+	char *movimiento=NULL;
+	int fin = 0, accion, Ganador,mov[4];
 	srand (time (NULL));
-	
-	Tablero.filas = Pantalla11();
-	while ((Tablero.filas < MIN_FILAS) || (Tablero.filas > MAX_FILAS))
+	if((*Tablero).filas==0)
 	{
-		ImprimirError(vecErrores, 1);
-		Tablero.filas = Pantalla11();
+		(*Tablero).filas = Pantalla11();
+		while (((*Tablero).filas < MIN_FILAS) || ((*Tablero).filas > MAX_FILAS))
+		{
+			ImprimirError(vecErrores, 1);
+			(*Tablero).filas = Pantalla11();
+		}
+
+		(*Tablero).columnas = Pantalla12();
+		while (((*Tablero).columnas < MIN_COLUMNAS) || ((*Tablero).columnas > MAX_COLUMNAS))
+		{
+			ImprimirError(vecErrores, 2);
+			(*Tablero).columnas = Pantalla12();
+		}
+
+		printf("\n");
+		printf("Jugador 1: %c\n", idJugador[1]);
+		printf("Jugador 2: %c\n", idJugador[2]);
+
+		(*Tablero).matriz = CrearTablero (Tablero);
+		printf("\n");
+		*turno = rand()%2 + 1; /*RANDINT*/
 	}
-
-	Tablero.columnas = Pantalla12();
-	while ((Tablero.columnas < MIN_COLUMNAS) || (Tablero.columnas > MAX_COLUMNAS))
-	{
-		ImprimirError(vecErrores, 2);
-		Tablero.columnas = Pantalla12();
-	}
-
-	printf("\n");
-	printf("Jugador 1: %c\n", idJugador[1]);
-	printf("Jugador 2: %c\n", idJugador[2]);
-
-	Tablero.matriz = CrearTablero (Tablero.filas, Tablero.columnas);
-	printf("\n");
-	
-	turno = rand()%2 + 1; /*RANDINT*/
-
 	while (fin == 0)
 	{
-		ImprimirTablero(&Tablero, idJugador);
-		printf("Turno Jugador %d\n", turno);
+		ImprimirTablero(Tablero, idJugador);
+		printf("Turno Jugador %d\n", *turno);
 
-		if (opcion == 2 && turno == 2)
-			accion = JugadaComputadora (&Tablero, mov);
+		if (*opcion == 2 && *turno == 2)
+		accion = JugadaComputadora (Tablero, mov);
 		else
-			accion = CapturarJugada (&Tablero, turno, vecErrores, mov);
-		
+		accion = CapturarJugada (Tablero, turno, vecErrores, mov, &movimiento);
+	
 		switch (accion)
 		{
 			case 0: 
 			{
-				EjecutarJugada (&Tablero, turno, mov);
+				EjecutarJugada (Tablero, turno, mov);
 
-				if (turno == 1)
-					turno = 2;
+				if (*turno == 1)
+					*turno = 2;
 				else
-					turno = 1;
+					*turno = 1;
 
-				fin = Fin(&Tablero, turno);
+				fin = Fin(Tablero, turno);
 			}
 			break;
 			
-			case 1: Save ();
+			case 1: Save (Tablero, turno, movimiento, opcion);
 			break;
-			
+		
 			case 2: 
 			{
 				fin = 1;
@@ -145,27 +142,24 @@ void ProcesoJuego (char **vecErrores, int opcion, char *idJugador)
 	}
 
 	if (accion == 0)
-	{
-		ImprimirTablero(&Tablero, idJugador);
-		LLenarTablero (&Tablero, turno);
+	{	
+		ImprimirTablero(Tablero, idJugador);
+		LLenarTablero (Tablero, turno);
 		printf("\n");
-		ImprimirTablero(&Tablero, idJugador);
-		
-		Ganador = ContarBlobs (&Tablero);
+		ImprimirTablero(Tablero, idJugador);
+	
+		Ganador = ContarBlobs (Tablero);
 		if (Ganador == 0)
 			printf("Hubo un empate\n");
 		else
 			printf("El ganador es el Jugador %d\n", Ganador);
-		
+	
 		printf("Pulse enter para volver al menu principal...\n");
 		getchar();
 	}
+
 }
 
-void RecuperarJuego ()
-{
-	printf("Proceso 3\n");
-}
 
 void CargarErrores (char **vecErrores)
 {
@@ -227,15 +221,14 @@ void ImprimirTablero (tipoMatriz *Tablero, char *idJugador)
 	}
 }
 
-int CapturarJugada (tipoMatriz *Tablero, int turno, char **vecErrores, int *mov)
+int CapturarJugada (tipoMatriz *Tablero, int *turno, char **vecErrores, int *mov, char **movimiento)
 {
 	int datosInvalidos = 3;
-	char *movimiento = NULL;
 	
 	while (datosInvalidos > 2)
 	{
 		printf("Introduzca un movimiento: ");
-		movimiento = leerCaracteres(movimiento);
+		(*movimiento) = leerCaracteres(movimiento);
 		datosInvalidos = ValidarParametros (movimiento, Tablero, turno, vecErrores, mov);
 		if (datosInvalidos > 2)
 			ImprimirError(vecErrores, datosInvalidos);
