@@ -34,6 +34,7 @@ int ValidarSave(char **movimiento);
 void Save (tipoMatriz *Tablero, int *turno, char  *movimiento, int *opcion);
 int RecuperarJuego(tipoMatriz *Tablero, int *turno, int *opcion, char **vecErrores);
 int JugadaComputadora (tipoMatriz *Tablero, int *mov);
+char * leerCaracteres ();/*hay que sacarlo de aca*/
 
 int ** CrearTablero (tipoMatriz *Tablero)
 {
@@ -249,8 +250,10 @@ int ValidarSave(char **movimiento)
 		}
 	}
 	(*movimiento)[j++] = 0;
-	*movimiento = realloc (*movimiento, j*sizeof(char)); 
-	return 0;
+	*movimiento = realloc (*movimiento, j*sizeof(char));
+	if(estado!=SAVE)
+		return 0;
+	return 1;
 }
 
 int JugadaComputadora (tipoMatriz *Tablero, int *mov)
@@ -381,8 +384,9 @@ int JugadaComputadora (tipoMatriz *Tablero, int *mov)
 int RecuperarJuego(tipoMatriz *Tablero, int *turno, int *opcion, char **vecErrores)
 {
 	int i=0, j=0, caracter;
-	char c, *nombre;
-	scanf("Introduzca el nombre del archivo: %s", nombre);
+	char c, *nombre=NULL;
+	printf("Introduzca el nombre del archivo: ");
+	nombre = leerCaracteres();
 	printf("Este es el nombre:%s\n", nombre);
 	FILE *fPointer;
 	fPointer = fopen(nombre, "r");
@@ -426,6 +430,8 @@ int RecuperarJuego(tipoMatriz *Tablero, int *turno, int *opcion, char **vecError
 		}
 	}
 
+	printf("PRUEBA\n");
+	
 	(*Tablero).matriz=malloc(((*Tablero).filas)*sizeof(char*));
 
 	for(i=0;i<(*Tablero).filas;i++)

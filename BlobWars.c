@@ -36,9 +36,12 @@ int get_int ();
 int main ()
 {
 	int opcion = 0;
-	char *vecErrores[MAX_ERRORES], idJugador[] = {'0', 'A', 'Z'};
+	char *vecErrores[MAX_ERRORES], idJugador[3] = {'0', 'A', 'Z'};
 	int turno=0;
 	tipoMatriz Tablero;
+	Tablero.filas=0;
+
+	srand (time (NULL));
 
 	CargarErrores(vecErrores);
 	
@@ -72,7 +75,7 @@ void ProcesoJuego (char **vecErrores, int *opcion, char *idJugador, tipoMatriz *
 {	
 	char *movimiento=NULL;
 	int fin = 0, accion, Ganador,mov[4];
-	srand (time (NULL));
+	
 	if((*Tablero).filas==0)
 	{
 		(*Tablero).filas = Pantalla11();
@@ -228,7 +231,7 @@ int CapturarJugada (tipoMatriz *Tablero, int *turno, char **vecErrores, int *mov
 	while (datosInvalidos > 2)
 	{
 		printf("Introduzca un movimiento: ");
-		(*movimiento) = leerCaracteres(movimiento);
+		(*movimiento) = leerCaracteres();
 		datosInvalidos = ValidarParametros (movimiento, Tablero, turno, vecErrores, mov);
 		if (datosInvalidos > 2)
 			ImprimirError(vecErrores, datosInvalidos);
@@ -236,9 +239,9 @@ int CapturarJugada (tipoMatriz *Tablero, int *turno, char **vecErrores, int *mov
 	return datosInvalidos;
 }
 
-char * leerCaracteres (char *string)
+char * leerCaracteres ()
 {
-	char *aux = NULL;
+	char *aux = NULL, *string=malloc(sizeof(char));
 	int i = 0, a;
 	while ((a=getchar()) != '\n')
 	{
