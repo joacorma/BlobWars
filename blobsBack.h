@@ -31,8 +31,8 @@ int Fin (tipoMatriz *Tablero, int *turno);
 void LLenarTablero (tipoMatriz *Tablero, int *turno);
 int ContarBlobs (tipoMatriz *Tablero);
 int ValidarSave(char **movimiento);
-void Save (tipoMatriz *Tablero, int *turno, char  *movimiento, int *opcion);
-int RecuperarJuego(tipoMatriz *Tablero, int *turno, int *opcion, char **vecErrores);
+void Save (/*tipoMatriz *Tablero, int *turno, char  *movimiento, int *opcion*/);
+/*int RecuperarJuego(tipoMatriz *Tablero, int *turno, int *opcion, char **vecErrores);*/
 int JugadaComputadora (tipoMatriz *Tablero, int *mov);
 char * leerCaracteres ();/*hay que sacarlo de aca*/
 
@@ -78,16 +78,16 @@ void EjecutarJugada (tipoMatriz *Tablero, int *turno, int *mov)
 int ValidarParametros (char **movimiento, tipoMatriz *Tablero, int *turno, char **vecErrores, int *mov)
 {
 	int cantLeidos, distancia;
-	char corchete;
+	char corchete, finalString;
 
 	if (ValidarSave (movimiento) == 0)
 		return 1;
 	else if (strcmp(*movimiento, "quit") == 0)
 		return 2;
 	
-	cantLeidos = sscanf(*movimiento, "[%d,%d][%d,%d%c", mov, mov+1, mov+2, mov+3, &corchete);
+	cantLeidos = sscanf(*movimiento, "[%d,%d][%d,%d%c%c", mov, mov+1, mov+2, mov+3, &corchete, &finalString);
 		
-	if (cantLeidos != 5 && corchete != ']')
+	if (cantLeidos != 5 || corchete != ']')
 		return 3;
 	else if ((mov[0] >= Tablero->filas) || (mov[0] < 0) || (mov[1] >= Tablero->columnas) || (mov[1] < 0) || (mov[2] >= Tablero->filas) || (mov[2] < 0) || (mov[3] >= Tablero->columnas) || (mov[3] < 0))
 		return 4;
@@ -152,7 +152,7 @@ int Fin (tipoMatriz *Tablero, int *turno)
 	{
 		for (j=0; j<Tablero->columnas; j++)
 		{
-			if (Tablero->matriz[i][j] == *turno)
+			if (Tablero->matriz[i][j] != *turno)
 			{
 				for (k=(i-2); k<=(i+2); k++)
 				{
@@ -204,9 +204,9 @@ int ContarBlobs (tipoMatriz *Tablero)
 	return ((jugador1 > jugador2) ? 1 : ((jugador1 < jugador2) ? 2 : 0));
 }
 
-void Save (tipoMatriz *Tablero, int *turno, char  *movimiento, int *opcion)
+void Save (/*tipoMatriz *Tablero, int *turno, char  *movimiento, int *opcion*/)
 {
-	int i, j;
+	/*int i, j;
 	printf("Save\n");
 	FILE *fPointer;
 	fPointer = fopen(movimiento,"w");
@@ -219,7 +219,7 @@ void Save (tipoMatriz *Tablero, int *turno, char  *movimiento, int *opcion)
 		}
 		fprintf(fPointer, "\n");
 	}
-	fclose(fPointer);
+	fclose(fPointer);*/
 	printf("Partida guardada. Pulse enter para continuar...\n");
 	getchar();
 }
@@ -381,7 +381,7 @@ int JugadaComputadora (tipoMatriz *Tablero, int *mov)
 	return 0;
 }
 
-int RecuperarJuego(tipoMatriz *Tablero, int *turno, int *opcion, char **vecErrores)
+/*int RecuperarJuego(tipoMatriz *Tablero, int *turno, int *opcion, char **vecErrores)
 {
 	int i=0, j=0, caracter;
 	char c, *nombre=NULL;
@@ -455,4 +455,4 @@ int RecuperarJuego(tipoMatriz *Tablero, int *turno, int *opcion, char **vecError
 	}
 	fclose(fPointer);
 	return 0;
-}
+}*/
