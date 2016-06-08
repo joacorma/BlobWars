@@ -35,6 +35,7 @@ void Save (tipoMatriz *Tablero, int *turno, char  *movimiento, int *opcion);
 int RecuperarJuego(tipoMatriz *Tablero, int *turno, int *opcion, char **vecErrores);
 int JugadaComputadora (tipoMatriz *Tablero, int *mov);
 char * leerCaracteres ();/*hay que sacarlo de aca*/
+void ImprimirError (char **vecErrores, int nroError);/*hay que sacarla de aca, y ponerla en front*/
 
 int ** CrearTablero (tipoMatriz *Tablero)
 {
@@ -383,15 +384,17 @@ int JugadaComputadora (tipoMatriz *Tablero, int *mov)
 
 int RecuperarJuego(tipoMatriz *Tablero, int *turno, int *opcion, char **vecErrores)
 {
-	int i=0, j=0, caracter;
+	int i=0, j=0, caracter=0;
 	char c, *nombre=NULL;
+	FILE *fPointer;
 	printf("Introduzca el nombre del archivo: ");
 	nombre = leerCaracteres();
-	printf("Este es el nombre:%s\n", nombre);
-	FILE *fPointer;
+	printf("%s\n", nombre );
 	fPointer = fopen(nombre, "r");
+	printf("LLEGO");
 	if(fPointer==NULL)
 	{
+		printf("TERMINO\n");
 		return 8;
 	}
 	while((c=fgetc(fPointer))!='\n')
@@ -400,13 +403,14 @@ int RecuperarJuego(tipoMatriz *Tablero, int *turno, int *opcion, char **vecError
 		{
 			case 0:
 			{
-				(*Tablero).filas=(int)(c-'0');
+				printf("Entra aca\n");
+				Tablero->filas=(int)(c-'0');
 				caracter++;
 				break;
 			}
 			case 2:
 			{
-				(*Tablero).columnas=(int)(c-'0');
+				Tablero->columnas=(int)(c-'0');
 				caracter++;
 				break;
 			}
@@ -431,7 +435,11 @@ int RecuperarJuego(tipoMatriz *Tablero, int *turno, int *opcion, char **vecError
 	}
 
 	printf("PRUEBA\n");
-	
+	printf("%d\n", Tablero->filas);
+	printf("%d\n", Tablero->columnas);
+	printf("%d\n", *turno);
+	printf("%d\n", *opcion);
+
 	(*Tablero).matriz=malloc(((*Tablero).filas)*sizeof(char*));
 
 	for(i=0;i<(*Tablero).filas;i++)
@@ -449,7 +457,7 @@ int RecuperarJuego(tipoMatriz *Tablero, int *turno, int *opcion, char **vecError
 		}	
 		else if(c!=' ')
 		{
-			(*Tablero).matriz[i][j] = c;
+			(*Tablero).matriz[i][j] = ((c=='A')?1:((c=='Z')?2:0));
 			j++;
 		}
 	}
