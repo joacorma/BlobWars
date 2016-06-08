@@ -1,11 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "time.h"
-#include "getnum.h"
 #include <string.h>
 #include <math.h>
-#include "blobsBack.h"
 #include <ctype.h>
+#include "blobsBack.h"
 
 
 #define MAX_ERRORES 8
@@ -130,7 +129,7 @@ void ProcesoJuego (char **vecErrores, int *opcion, char *idJugador, tipoMatriz *
 			}
 			break;
 			
-			case 1: Save (Tablero, turno, movimiento, opcion);
+			case 1: Save (/*Tablero, turno, movimiento, opcion*/);
 			break;
 		
 			case 2: 
@@ -279,5 +278,4 @@ int get_int ()
 	}
 
 	return entero;
-
 }
