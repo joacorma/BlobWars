@@ -1,11 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "time.h"
-#include "getnum.h"
 #include <string.h>
 #include <math.h>
-#include "blobsBack.h"
 #include <ctype.h>
+#include "blobsBack.h"
 
 
 #define MAX_ERRORES 8
@@ -26,8 +25,8 @@ void ProcesoJuego (char **vecErrores, int *opcion, char *idJugador, tipoMatriz *
 void CargarErrores (char **vecErrores);
 void ImprimirError (char **vecErrores, int nroError);
 void PantallaInicial ();
-int Pantalla11 ();
-int Pantalla12 ();
+int get_filas ();
+int get_columnas ();
 void ImprimirTablero (tipoMatriz *Tablero, char *idJugador);
 int CapturarJugada (tipoMatriz *Tablero, int *turno, char **vecErrores, int *mov, char **movimiento);
 char * leerCaracteres ();
@@ -63,9 +62,9 @@ int main ()
 				break;
 			case 2: ProcesoJuego (vecErrores, &opcion, idJugador, &Tablero, &turno);
 				break;
-			case 3: RecuperarJuego(&Tablero, &turno, &opcion, vecErrores);
+			case 3: /*RecuperarJuego(&Tablero, &turno, &opcion, vecErrores);*/
 				break;
-			case 4: printf("Gracias por jugar al Blob Wars. Hasta pronto!\n");
+			case 4: printf("Gracias por jugar al Blob Wars. Hasta pronto!\n\n");
 		}
 	}
 	return 0;
@@ -73,37 +72,42 @@ int main ()
 
 void ProcesoJuego (char **vecErrores, int *opcion, char *idJugador, tipoMatriz *Tablero, int *turno)
 {	
-	char *movimiento=NULL;
-	int fin = 0, accion, Ganador,mov[4];
+	char *movimiento = NULL;
+	int fin = 0, accion, Ganador, mov[4];
 	
 	if((*Tablero).filas==0)
 	{
-		(*Tablero).filas = Pantalla11();
-		while (((*Tablero).filas < MIN_FILAS) || ((*Tablero).filas > MAX_FILAS))
+		Tablero->filas = get_filas();
+		while ((Tablero->filas < MIN_FILAS) || (Tablero->filas > MAX_FILAS))
 		{
 			ImprimirError(vecErrores, 1);
-			(*Tablero).filas = Pantalla11();
+			Tablero->filas = get_filas();
 		}
 
-		(*Tablero).columnas = Pantalla12();
-		while (((*Tablero).columnas < MIN_COLUMNAS) || ((*Tablero).columnas > MAX_COLUMNAS))
+		Tablero->columnas = get_columnas();
+		while ((Tablero->columnas < MIN_COLUMNAS) || (Tablero->columnas > MAX_COLUMNAS))
 		{
 			ImprimirError(vecErrores, 2);
-			(*Tablero).columnas = Pantalla12();
+			Tablero->columnas = get_columnas();
 		}
 
 		printf("\n");
 		printf("Jugador 1: %c\n", idJugador[1]);
 		printf("Jugador 2: %c\n", idJugador[2]);
-
-		(*Tablero).matriz = CrearTablero (Tablero);
 		printf("\n");
+		printf("Para introducir un movimiento debe hacerlo de esta forma:\n");
+		printf("[fila_origen,columna_origen][fila_destino,columna_destino]\n");
+		printf("Por ejemplo: [0,0][0,1]\n");
+		printf("Pulse enter para comenzar el juego...");
+		getchar();
+
+		Tablero->matriz = CrearTablero (Tablero);
 		*turno = rand()%2 + 1; /*RANDINT*/
 	}
 	while (fin == 0)
 	{
 		ImprimirTablero(Tablero, idJugador);
-		printf("Turno Jugador %d\n", *turno);
+		printf("\nTurno Jugador %d\n", *turno);
 
 		if (*opcion == 2 && *turno == 2)
 		accion = JugadaComputadora (Tablero, mov);
@@ -125,7 +129,7 @@ void ProcesoJuego (char **vecErrores, int *opcion, char *idJugador, tipoMatriz *
 			}
 			break;
 			
-			case 1: Save (Tablero, turno, movimiento, opcion);
+			case 1: Save (/*Tablero, turno, movimiento, opcion*/);
 			break;
 		
 			case 2: 
@@ -193,7 +197,7 @@ void PantallaInicial ()
 	printf("4. Terminar\n\n");
 }
 
-int Pantalla11 ()
+int get_filas ()
 {
 	int fila;
 	printf("Ingrese la cantidad de filas del tablero (entre 5 y 30): ");
@@ -202,7 +206,7 @@ int Pantalla11 ()
 
 }
 
-int Pantalla12 ()
+int get_columnas ()
 {
 	int col;
 	printf("Ingrese la cantidad de columnas del tablero (entre 5 y 30): ");
@@ -274,5 +278,4 @@ int get_int ()
 	}
 
 	return entero;
-
 }

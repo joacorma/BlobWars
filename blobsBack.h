@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "time.h"
-#include "getnum.h"
 #include <string.h>
 #include <math.h>
+#include <ctype.h>
 
 #define SAVE 0
 #define FILENAME 1
@@ -20,24 +20,31 @@ typedef struct
 	} tipoMatriz;
 
 
-int ** CrearTablero (tipoMatriz *Tablero);
-void EjecutarJugada (tipoMatriz *Tablero, int *turno, int *mov);
-int ValidarParametros (char **movimiento, tipoMatriz *Tablero, int *turno, char **vecErrores, int *mov);
-int CalcularDistancia (int u, int v, int x, int y);
-void CrearBlob (tipoMatriz *Tablero ,int fila, int columna, int *turno);
-void Adyacentes (tipoMatriz *Tablero, int *turno, int fila, int columna);
-void Salto (tipoMatriz *Tablero, int *mov);
-int Fin (tipoMatriz *Tablero, int *turno);
-void LLenarTablero (tipoMatriz *Tablero, int *turno);
-int ContarBlobs (tipoMatriz *Tablero);
+int ** CrearTablero(tipoMatriz *Tablero);
+void EjecutarJugada(tipoMatriz *Tablero, int *turno, int *mov);
+int ValidarParametros(char **movimiento, tipoMatriz *Tablero, int *turno, char **vecErrores, int *mov);
+int CalcularDistancia(int u, int x, int v, int y);
+void CrearBlob(tipoMatriz *Tablero ,int fila, int columna, int *turno);
+void Adyacentes(tipoMatriz *Tablero, int *turno, int fila, int columna);
+void Salto(tipoMatriz *Tablero, int *mov);
+int Fin(tipoMatriz *Tablero, int *turno);
+void LLenarTablero(tipoMatriz *Tablero, int *turno);
+int ContarBlobs(tipoMatriz *Tablero);
 int ValidarSave(char **movimiento);
+<<<<<<< HEAD
 void Save (tipoMatriz *Tablero, int *turno, char  *movimiento, int *opcion);
 int RecuperarJuego(tipoMatriz *Tablero, int *turno, int *opcion, char **vecErrores);
 int JugadaComputadora (tipoMatriz *Tablero, int *mov);
 char * leerCaracteres ();/*hay que sacarlo de aca*/
 void ImprimirError (char **vecErrores, int nroError);/*hay que sacarla de aca, y ponerla en front*/
+=======
+void Save(/*tipoMatriz *Tablero, int *turno, char  *movimiento, int *opcion*/);
+/*int RecuperarJuego(tipoMatriz *Tablero, int *turno, int *opcion, char **vecErrores);*/
+int JugadaComputadora(tipoMatriz *Tablero, int *mov);
+char * leerCaracteres();/*hay que sacarlo de aca*/
+>>>>>>> master
 
-int ** CrearTablero (tipoMatriz *Tablero)
+int ** CrearTablero(tipoMatriz *Tablero)
 {
 	int i, j;
 	int**matrix;
@@ -62,13 +69,13 @@ int ** CrearTablero (tipoMatriz *Tablero)
 	return matrix;
 }
 
-void EjecutarJugada (tipoMatriz *Tablero, int *turno, int *mov)
+void EjecutarJugada(tipoMatriz *Tablero, int *turno, int *mov)
 {		
-		if (CalcularDistancia(mov[0], mov[2], mov[1], mov[3]) == 1)
+		if (CalcularDistancia(mov[0], mov[1], mov[2], mov[3]) == 1)
 		{
 			CrearBlob(Tablero, mov[2], mov[3], turno);
 		}
-		else if (CalcularDistancia(mov[0], mov[2], mov[1], mov[3]) == 2)
+		else if (CalcularDistancia(mov[0], mov[1], mov[2], mov[3]) == 2)
 		{
 			Salto(Tablero, mov);
 		}
@@ -76,23 +83,23 @@ void EjecutarJugada (tipoMatriz *Tablero, int *turno, int *mov)
 		Adyacentes(Tablero, turno, mov[2], mov[3]);
 }
 
-int ValidarParametros (char **movimiento, tipoMatriz *Tablero, int *turno, char **vecErrores, int *mov)
+int ValidarParametros(char **movimiento, tipoMatriz *Tablero, int *turno, char **vecErrores, int *mov)
 {
 	int cantLeidos, distancia;
-	char corchete;
+	char corchete, finalString;
 
 	if (ValidarSave (movimiento) == 0)
 		return 1;
 	else if (strcmp(*movimiento, "quit") == 0)
 		return 2;
 	
-	cantLeidos = sscanf(*movimiento, "[%d,%d][%d,%d%c", mov, mov+1, mov+2, mov+3, &corchete);
+	cantLeidos = sscanf(*movimiento, "[%d,%d][%d,%d%c%c", mov, mov+1, mov+2, mov+3, &corchete, &finalString);
 		
-	if (cantLeidos != 5 && corchete != ']')
+	if (cantLeidos != 5 || corchete != ']')
 		return 3;
 	else if ((mov[0] >= Tablero->filas) || (mov[0] < 0) || (mov[1] >= Tablero->columnas) || (mov[1] < 0) || (mov[2] >= Tablero->filas) || (mov[2] < 0) || (mov[3] >= Tablero->columnas) || (mov[3] < 0))
 		return 4;
-	else if (CalcularDistancia (mov[0], mov[2], mov[1], mov[3]) == 0)
+	else if (CalcularDistancia (mov[0], mov[1], mov[2], mov[3]) == 0)
 		return 5;
 	else if (Tablero->matriz[mov[0]][mov[1]] != *turno)
 		return 6;
@@ -102,15 +109,35 @@ int ValidarParametros (char **movimiento, tipoMatriz *Tablero, int *turno, char 
 	return 0;
 }
 
-int CalcularDistancia (int u, int v, int x, int y)
+int CalcularDistancia(int u, int x, int v, int y)
 {
 	int distFila, distColumna;
 	distFila = abs(v - u);
 	distColumna = abs(y - x);
-	if (((distFila == 0) && (distColumna == 1)) || ((distFila == 1) && (distColumna == 0)) || ((distFila == 1) && (distColumna == 1)))
-		return 1;
-	else if (((distFila == 1) && (distColumna == 2)) || ((distFila == 2) && (distColumna == 1)) || ((distFila == 2) && (distColumna == 2)) || ((distFila == 0) && (distColumna == 2)) || ((distFila == 2) && (distColumna == 0)))
-		return 2;
+	
+	if (distFila <= 2 || distColumna <= 2)
+	{
+		switch (distFila)
+		{
+			case 0:
+			{
+				if (distColumna != 0)
+					return distColumna;
+			}
+			break;
+
+			case 1:
+			{
+				if (distColumna != 2)
+					return distFila;
+				return distColumna;
+			}
+			break;
+
+			case 2: return distFila;
+		}
+	}
+	
 	return 0;
 }
 
@@ -153,7 +180,7 @@ int Fin (tipoMatriz *Tablero, int *turno)
 	{
 		for (j=0; j<Tablero->columnas; j++)
 		{
-			if (Tablero->matriz[i][j] == *turno)
+			if (Tablero->matriz[i][j] != *turno)
 			{
 				for (k=(i-2); k<=(i+2); k++)
 				{
@@ -205,9 +232,9 @@ int ContarBlobs (tipoMatriz *Tablero)
 	return ((jugador1 > jugador2) ? 1 : ((jugador1 < jugador2) ? 2 : 0));
 }
 
-void Save (tipoMatriz *Tablero, int *turno, char  *movimiento, int *opcion)
+void Save (/*tipoMatriz *Tablero, int *turno, char  *movimiento, int *opcion*/)
 {
-	int i, j;
+	/*int i, j;
 	printf("Save\n");
 	FILE *fPointer;
 	fPointer = fopen(movimiento,"w");
@@ -220,7 +247,7 @@ void Save (tipoMatriz *Tablero, int *turno, char  *movimiento, int *opcion)
 		}
 		fprintf(fPointer, "\n");
 	}
-	fclose(fPointer);
+	fclose(fPointer);*/
 	printf("Partida guardada. Pulse enter para continuar...\n");
 	getchar();
 }
@@ -297,9 +324,9 @@ int JugadaComputadora (tipoMatriz *Tablero, int *mov)
 										cambio = 1;
 									else if (comidas == comidasMax && posDestino != -1)
 									{
-										if (distancia > CalcularDistancia(i, k, j, l))
+										if (distancia > CalcularDistancia(i, j, k, l))
 											cambio = 1;
-										else if (distancia == CalcularDistancia(i, k, j, l))
+										else if (distancia == CalcularDistancia(i, j, k, l))
 										{	
 											coin = rand()%2 + 1;
 											if (coin == 1)
@@ -311,7 +338,7 @@ int JugadaComputadora (tipoMatriz *Tablero, int *mov)
 										comidasMax = comidas;
 										posOrigen = i*100 + j;
 										posDestino = k*100 + l;
-										distancia = CalcularDistancia(i, k, j, l);
+										distancia = CalcularDistancia(i, j, k, l);
 
 									}
 								}
@@ -382,7 +409,7 @@ int JugadaComputadora (tipoMatriz *Tablero, int *mov)
 	return 0;
 }
 
-int RecuperarJuego(tipoMatriz *Tablero, int *turno, int *opcion, char **vecErrores)
+/*int RecuperarJuego(tipoMatriz *Tablero, int *turno, int *opcion, char **vecErrores)
 {
 	int i=0, j=0, caracter=0;
 	char c, *nombre=NULL;
@@ -433,7 +460,6 @@ int RecuperarJuego(tipoMatriz *Tablero, int *turno, int *opcion, char **vecError
 			}
 		}
 	}
-
 	printf("PRUEBA\n");
 	printf("%d\n", Tablero->filas);
 	printf("%d\n", Tablero->columnas);
@@ -441,7 +467,6 @@ int RecuperarJuego(tipoMatriz *Tablero, int *turno, int *opcion, char **vecError
 	printf("%d\n", *opcion);
 
 	(*Tablero).matriz=malloc(((*Tablero).filas)*sizeof(char*));
-
 	for(i=0;i<(*Tablero).filas;i++)
 	{
 		(*Tablero).matriz[i]=malloc((*Tablero).columnas);
@@ -463,4 +488,4 @@ int RecuperarJuego(tipoMatriz *Tablero, int *turno, int *opcion, char **vecError
 	}
 	fclose(fPointer);
 	return 0;
-}
+}*/
