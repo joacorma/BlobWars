@@ -62,7 +62,7 @@ int main ()
 				break;
 			case 2: ProcesoJuego (vecErrores, &opcion, idJugador, &Tablero, &turno);
 				break;
-			case 3: /*RecuperarJuego(&Tablero, &turno, &opcion, vecErrores);*/
+			case 3: RecuperarJuego(&Tablero, &turno, &opcion, vecErrores);
 				break;
 			case 4: printf("Gracias por jugar al Blob Wars. Hasta pronto!\n\n");
 		}
@@ -102,7 +102,7 @@ void ProcesoJuego (char **vecErrores, int *opcion, char *idJugador, tipoMatriz *
 		getchar();
 
 		Tablero->matriz = CrearTablero (Tablero);
-		*turno = rand()%2 + 1; /*RANDINT*/
+		*turno = (int) (rand() / ( (double) RAND_MAX + 1) * (2 - 1 + 1) + 1);
 	}
 	while (fin == 0)
 	{
@@ -129,7 +129,7 @@ void ProcesoJuego (char **vecErrores, int *opcion, char *idJugador, tipoMatriz *
 			}
 			break;
 			
-			case 1: Save (/*Tablero, turno, movimiento, opcion*/);
+			case 1: Save (Tablero, turno, movimiento, opcion);
 			break;
 		
 			case 2: 
