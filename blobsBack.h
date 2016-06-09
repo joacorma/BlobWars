@@ -31,12 +31,11 @@ int Fin(tipoMatriz *Tablero, int *turno);
 void LLenarTablero(tipoMatriz *Tablero, int *turno);
 int ContarBlobs(tipoMatriz *Tablero);
 int ValidarSave(char **movimiento);
-void Save (tipoMatriz *Tablero, int *turno, char  *movimiento, int *opcion);
 int RecuperarJuego(tipoMatriz *Tablero, int *turno, int *opcion, char **vecErrores);
 int JugadaComputadora (tipoMatriz *Tablero, int *mov);
 char * leerCaracteres ();/*hay que sacarlo de aca*/
 void ImprimirError (char **vecErrores, int nroError);/*hay que sacarla de aca, y ponerla en front*/
-void Save(tipoMatriz *Tablero, int *turno, char  *movimiento, int *opcion);
+void Save(tipoMatriz *Tablero, int *turno, char  *movimiento, int *opcion, char *idJugador);
 int RecuperarJuego(tipoMatriz *Tablero, int *turno, int *opcion, char **vecErrores);
 int JugadaComputadora(tipoMatriz *Tablero, int *mov);
 
@@ -228,10 +227,9 @@ int ContarBlobs (tipoMatriz *Tablero)
 	return ((jugador1 > jugador2) ? 1 : ((jugador1 < jugador2) ? 2 : 0));
 }
 
-void Save (tipoMatriz *Tablero, int *turno, char  *movimiento, int *opcion)
+void Save (tipoMatriz *Tablero, int *turno, char  *movimiento, int *opcion, char *idJugador)
 {
 	int i, j;
-	printf("Save\n");
 	FILE *fPointer;
 	fPointer = fopen(movimiento,"w");
 	fprintf(fPointer, "%d,%d,%d,%d\n", (*Tablero).filas, (*Tablero).columnas, *turno, *opcion);
@@ -239,7 +237,7 @@ void Save (tipoMatriz *Tablero, int *turno, char  *movimiento, int *opcion)
 	{
 		for(j=0;j<(*Tablero).columnas;j++)
 		{
-			fprintf(fPointer, "%c ", (*Tablero).matriz[i][j]);
+			fprintf(fPointer, "%c ", idJugador[Tablero->matriz[i][j]]);
 		}
 		fprintf(fPointer, "\n");
 	}
@@ -408,7 +406,7 @@ int JugadaComputadora (tipoMatriz *Tablero, int *mov)
 int RecuperarJuego(tipoMatriz *Tablero, int *turno, int *opcion, char **vecErrores)
 {
 	int i=0, j=0, caracter=0;
-	char c, *nombre=NULL;
+	char c, *nombre=NULL, *juegoRecuperado = malloc(10*sizeof(char));
 	FILE *fPointer;
 	printf("Introduzca el nombre del archivo: ");
 	nombre = leerCaracteres();
@@ -420,7 +418,10 @@ int RecuperarJuego(tipoMatriz *Tablero, int *turno, int *opcion, char **vecError
 		printf("TERMINO\n");
 		return 8;
 	}
-	while((c=fgetc(fPointer))!='\n')
+	fgets(juegoRecuperado, 11, fPointer);
+	printf("%s\n", juegoRecuperado);
+	sscanf(juegoRecuperado, "%d,%d,%d,%d", &(Tablero->filas), &(Tablero->columnas), turno, opcion);
+	/*while((c=fgetc(fPointer))!='\n')
 	{
 		switch(caracter)
 		{
@@ -455,7 +456,7 @@ int RecuperarJuego(tipoMatriz *Tablero, int *turno, int *opcion, char **vecError
 				break;
 			}
 		}
-	}
+	}*/
 	printf("PRUEBA\n");
 	printf("%d\n", Tablero->filas);
 	printf("%d\n", Tablero->columnas);
