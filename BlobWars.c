@@ -4,7 +4,7 @@
 #include <string.h>
 #include <math.h>
 #include <ctype.h>
-#include "blobsBack.h"
+#include "blobsBackV4.h"
 
 
 #define MAX_ERRORES 8
@@ -58,16 +58,21 @@ int main ()
 
 		switch(opcion)
 		{
-			case 1: ProcesoJuego (vecErrores, &opcion, idJugador, &Tablero, &turno);
+			case 3: 
+			{	
+				while (opcion == 3)
+					RecuperarJuego(&Tablero, &turno, &opcion, vecErrores);
+			}
 				break;
-			case 2: ProcesoJuego (vecErrores, &opcion, idJugador, &Tablero, &turno);
-				break;
-			case 3: RecuperarJuego(&Tablero, &turno, &opcion, vecErrores);
-				break;
-			case 4: printf("Gracias por jugar al Blob Wars. Hasta pronto!\n\n");
+			case 4: 
+			{
+				printf("Gracias por jugar al Blob Wars. Hasta pronto!\n\n");
+				return 0;
+			}
 		}
+
+		ProcesoJuego (vecErrores, &opcion, idJugador, &Tablero, &turno);
 	}
-	return 0;
 }
 
 void ProcesoJuego (char **vecErrores, int *opcion, char *idJugador, tipoMatriz *Tablero, int *turno)
@@ -75,7 +80,7 @@ void ProcesoJuego (char **vecErrores, int *opcion, char *idJugador, tipoMatriz *
 	char *movimiento = NULL;
 	int fin = 0, accion, Ganador, mov[4];
 	
-	if((*Tablero).filas==0)
+	if(Tablero->filas==0)
 	{
 		Tablero->filas = get_filas();
 		while ((Tablero->filas < MIN_FILAS) || (Tablero->filas > MAX_FILAS))
@@ -129,12 +134,15 @@ void ProcesoJuego (char **vecErrores, int *opcion, char *idJugador, tipoMatriz *
 			}
 			break;
 			
-			case 1: Save (Tablero, turno, movimiento, opcion);
+			case 1: Save (Tablero, turno, movimiento, opcion, idJugador);
 			break;
 		
 			case 2: 
 			{
 				fin = 1;
+				free(Tablero->matriz);
+				Tablero->filas = 0;
+				Tablero->columnas = 0;
 				printf("La partida ha sido terminada. Pulse enter para continuar...\n");
 				getchar();
 			}
