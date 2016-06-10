@@ -1,0 +1,6 @@
+Para utilizar el archivo makefile en el directorio 
+donde se encuentran todos los archivos del programa:
+
+"make" compila y linkedita.
+"make clean" realiza una limpieza de los archivos objetos.
+"make full" realiza ambas operaciones mencionadas arriba.
