@@ -17,70 +17,72 @@ typedef struct
 		int filas;
 		int columnas;
 		int **matriz;
+		int opcion;
+		int turno;
 	} tipoMatriz;
 
 
 int ** CrearTablero(tipoMatriz *Tablero);
-void EjecutarJugada(tipoMatriz *Tablero, int *turno, int *mov);
-int ValidarParametros(char **movimiento, tipoMatriz *Tablero, int *turno, char **vecErrores, int *mov);
+void EjecutarJugada(tipoMatriz *Tablero, int *mov);
+int ValidarParametros(tipoMatriz *Tablero, char **movimiento, int *mov, char **vecErrores);
 int CalcularDistancia(int u, int x, int v, int y);
-void CrearBlob(tipoMatriz *Tablero ,int fila, int columna, int *turno);
-void Adyacentes(tipoMatriz *Tablero, int *turno, int fila, int columna);
+void CrearBlob(tipoMatriz *Tablero ,int fila, int columna);
+void Adyacentes(tipoMatriz *Tablero, int fila, int columna);
 void Salto(tipoMatriz *Tablero, int *mov);
-int Fin(tipoMatriz *Tablero, int *turno);
-void LLenarTablero(tipoMatriz *Tablero, int *turno);
+int Fin(tipoMatriz *Tablero);
+void LLenarTablero(tipoMatriz *Tablero);
 int ContarBlobs(tipoMatriz *Tablero);
 int ValidarSave(char **movimiento);
-int RecuperarJuego(tipoMatriz *Tablero, int *turno, int *opcion, char **vecErrores);
+int RecuperarJuego(tipoMatriz *Tablero, char **vecErrores);
 int JugadaComputadora (tipoMatriz *Tablero, int *mov);
 char * leerCaracteres ();/*hay que sacarlo de aca*/
 void ImprimirError (char **vecErrores, int nroError);/*hay que sacarla de aca, y ponerla en front*/
-void Save(tipoMatriz *Tablero, int *turno, char  *movimiento, int *opcion, char *idJugador);
-int RecuperarJuego(tipoMatriz *Tablero, int *turno, int *opcion, char **vecErrores);
+void Save(tipoMatriz *Tablero, char  *movimiento, char *idJugador);
 int JugadaComputadora(tipoMatriz *Tablero, int *mov);
+int ContarFichas(tipoMatriz *Tablero, int jugador);
 
 int ** CrearTablero(tipoMatriz *Tablero)
 {
-	int i, j;
-	int**matrix;
-	matrix = malloc((*Tablero).filas*sizeof(int*));
+	int i, j, ** matrix;
 	
-	for (i=0; i<(*Tablero).filas; i++)
+	matrix = malloc(Tablero->filas*sizeof(int*));
+	
+	for (i=0; i<Tablero->filas; i++)
 	{
-		matrix[i]=malloc((*Tablero).columnas*sizeof(int));
+		matrix[i] = malloc(Tablero->columnas*sizeof(int));
 	}
 	
-	for (i=0; i<(*Tablero).filas; i++)
+	for (i=0; i<Tablero->filas; i++)
 	{
-		for (j=0; j<(*Tablero).columnas; j++)
+		for (j=0; j<Tablero->columnas; j++)
 			matrix[i][j] = 0;
 	}
 
 	matrix[0][0] = 1;
-	matrix[0][((*Tablero).columnas)-1] = 2;
-	matrix[((*Tablero).filas)-1][0] = 1;
-	matrix[((*Tablero).filas)-1][((*Tablero).columnas)-1] = 2;
+	matrix[0][(Tablero->columnas)-1] = 2;
+	matrix[(Tablero->filas)-1][0] = 1;
+	matrix[(Tablero->filas)-1][(Tablero->columnas)-1] = 2;
 
 	return matrix;
 }
 
-void EjecutarJugada(tipoMatriz *Tablero, int *turno, int *mov)
+void EjecutarJugada(tipoMatriz *Tablero, int *mov)
 {		
 		if (CalcularDistancia(mov[0], mov[1], mov[2], mov[3]) == 1)
 		{
-			CrearBlob(Tablero, mov[2], mov[3], turno);
+			CrearBlob(Tablero, mov[2], mov[3]);
 		}
 		else if (CalcularDistancia(mov[0], mov[1], mov[2], mov[3]) == 2)
 		{
 			Salto(Tablero, mov);
 		}
 
-		Adyacentes(Tablero, turno, mov[2], mov[3]);
+		Adyacentes(Tablero, mov[2], mov[3]);
 }
 
-int ValidarParametros(char **movimiento, tipoMatriz *Tablero, int *turno, char **vecErrores, int *mov)
+int ValidarParametros(tipoMatriz *Tablero, char **movimiento, int *mov, char **vecErrores)
 {
-	int cantLeidos, distancia;
+	int cantLeidos;
 	char corchete, finalString;
 
 	if (ValidarSave (movimiento) == 0)
@@ -96,7 +98,7 @@ int ValidarParametros(char **movimiento, tipoMatriz *Tablero, int *turno, char *
 		return 4;
 	else if (CalcularDistancia (mov[0], mov[1], mov[2], mov[3]) == 0)
 		return 5;
-	else if (Tablero->matriz[mov[0]][mov[1]] != *turno)
+	else if (Tablero->matriz[mov[0]][mov[1]] != Tablero->turno)
 		return 6;
 	else if (Tablero->matriz[mov[2]][mov[3]] != 0)
 		return 7;
@@ -136,12 +138,12 @@ int CalcularDistancia(int u, int x, int v, int y)
 	return 0;
 }
 
-void CrearBlob (tipoMatriz *Tablero ,int fila, int columna, int *turno)
+void CrearBlob (tipoMatriz *Tablero ,int fila, int columna)
 {
-	Tablero->matriz[fila][columna] = *turno;
+	Tablero->matriz[fila][columna] = Tablero->turno;
 }
 
-void Adyacentes (tipoMatriz *Tablero, int *turno, int fila, int columna)
+void Adyacentes (tipoMatriz *Tablero, int fila, int columna)
 {
 	int i, j;
 
@@ -151,8 +153,8 @@ void Adyacentes (tipoMatriz *Tablero, int *turno, int fila, int columna)
 		{
 			if (i>=0 && j>=0 && i<Tablero->filas && j<Tablero->columnas)
 			{
-				if ((Tablero->matriz[i][j] != 0) && (abs(*turno - Tablero->matriz[i][j])) == 1)
-					CrearBlob(Tablero, i, j, turno);
+				if ((Tablero->matriz[i][j] != 0) && (abs(Tablero->turno - Tablero->matriz[i][j])) == 1)
+					CrearBlob(Tablero, i, j);
 			}
 		}
 	}
@@ -167,7 +169,7 @@ void Salto (tipoMatriz *Tablero, int *mov)
 	Tablero->matriz[mov[2]][mov[3]] = aux;	
 }
 
-int Fin (tipoMatriz *Tablero, int *turno)
+int Fin (tipoMatriz *Tablero)
 {
 	int i, j, k, l;
 
@@ -175,7 +177,7 @@ int Fin (tipoMatriz *Tablero, int *turno)
 	{
 		for (j=0; j<Tablero->columnas; j++)
 		{
-			if (Tablero->matriz[i][j] == *turno)
+			if (Tablero->matriz[i][j] == Tablero->turno)
 			{
 				for (k=(i-2); k<=(i+2); k++)
 				{
@@ -194,10 +196,11 @@ int Fin (tipoMatriz *Tablero, int *turno)
 			}
 		}
 	}
+	
 	return 1;
 }
 
-void LLenarTablero (tipoMatriz *Tablero, int *turno)
+void LLenarTablero (tipoMatriz *Tablero)
 {
 	int i, j;
 
@@ -206,7 +209,7 @@ void LLenarTablero (tipoMatriz *Tablero, int *turno)
 		for (j=0; j<Tablero->columnas; j++)
 		{
 			if (Tablero->matriz[i][j] == 0)
-				Tablero->matriz[i][j] = ((*turno == 1) ? 2 : 1);
+				Tablero->matriz[i][j] = ((Tablero->turno == 1) ? 2 : 1);
 		}
 	}
 }
@@ -227,21 +230,50 @@ int ContarBlobs (tipoMatriz *Tablero)
 	return ((jugador1 > jugador2) ? 1 : ((jugador1 < jugador2) ? 2 : 0));
 }
 
-void Save (tipoMatriz *Tablero, int *turno, char  *movimiento, int *opcion, char *idJugador)
+int ContarFichas(tipoMatriz *Tablero, int jugador)
 {
-	int i, j;
-	FILE *fPointer;
-	fPointer = fopen(movimiento,"w");
-	fprintf(fPointer, "%d,%d,%d,%d\n", (*Tablero).filas, (*Tablero).columnas, *turno, *opcion);
-	for(i=0;i<(*Tablero).filas;i++)
+	int i, j, cantidad = 0;
+
+	for (i=0; i<Tablero->filas; i++)
 	{
-		for(j=0;j<(*Tablero).columnas;j++)
+		for (j=0; j<Tablero->columnas; j++)
 		{
-			fprintf(fPointer, "%c ", idJugador[Tablero->matriz[i][j]]);
+			if (Tablero->matriz[i][j] == jugador)
+				cantidad++;
 		}
-		fprintf(fPointer, "\n");
 	}
-	fclose(fPointer);
+
+	return cantidad;
+}
+
+void Save (tipoMatriz *Tablero, char  *movimiento, char *idJugador)
+{
+	int i, j, k = 0, fichasAuxJ1, fichasAuxJ2;
+	char * posciciones = malloc(Tablero->filas * Tablero->columnas);
+	FILE * archivo;
+
+	archivo = fopen(movimiento, "w");
+	fwrite(&(Tablero->opcion), sizeof(int), 1, archivo);
+	fwrite(&(Tablero->turno), sizeof(int), 1, archivo);
+	fwrite(&(Tablero->filas), sizeof(int), 1, archivo);
+	fwrite(&(Tablero->columnas), sizeof(int), 1, archivo);
+	fichasAuxJ1 = ContarFichas(Tablero, 1);
+	fwrite(&fichasAuxJ1, sizeof(int), 1, archivo);
+	fichasAuxJ2 = ContarFichas(Tablero, 2);
+	fwrite(&fichasAuxJ2, sizeof(int), 1, archivo);
+
+	for (i=0; i<Tablero->filas; i++)
+	{
+		for (j=0; j<Tablero->columnas; j++)
+		{
+			posciciones[k] = idJugador[Tablero->matriz[i][j]];
+			k++;
+		}
+	}
+	fwrite(posciciones, Tablero->filas * Tablero->columnas, 1, archivo);
+	
+	fclose(archivo);
+
 	printf("Partida guardada. Pulse enter para continuar...\n");
 	getchar();
 }
@@ -273,7 +305,7 @@ int ValidarSave(char **movimiento)
 	}
 	(*movimiento)[j++] = 0;
 	*movimiento = realloc (*movimiento, j*sizeof(char));
-	if(estado!=SAVE)
+	if (estado != SAVE)
 		return 0;
 	return 1;
 }
@@ -403,85 +435,52 @@ int JugadaComputadora (tipoMatriz *Tablero, int *mov)
 	return 0;
 }
 
-int RecuperarJuego(tipoMatriz *Tablero, int *turno, int *opcion, char **vecErrores)
+int RecuperarJuego(tipoMatriz *Tablero, char **vecErrores)
 {
-	int i=0, j=0, caracter=0;
-	char c, *nombre=NULL, *juegoRecuperado = malloc(10*sizeof(char));
-	FILE *fPointer;
+	int i=0, j=0, k=0;
+	char *nombre = NULL;
+	FILE * archivo;
+	
 	printf("Introduzca el nombre del archivo: ");
 	nombre = leerCaracteres();
-	printf("%s\n", nombre );
-	fPointer = fopen(nombre, "r");
-	printf("LLEGO");
-	if(fPointer==NULL)
+	archivo = fopen(nombre, "r");
+	while (archivo == NULL)
 	{
-		printf("TERMINO\n");
-		return 8;
+		ImprimirError(vecErrores, 8);
+		printf("Introduzca el nombre del archivo: ");
+		nombre = leerCaracteres();
+		archivo = fopen(nombre, "r");
 	}
-	fgets(juegoRecuperado, 11, fPointer);
-	printf("%s\n", juegoRecuperado);
-	sscanf(juegoRecuperado, "%d,%d,%d,%d", &(Tablero->filas), &(Tablero->columnas), turno, opcion);
-	/*while((c=fgetc(fPointer))!='\n')
+	
+	fread(&(Tablero->opcion), sizeof(int), 1, archivo);
+	fread(&(Tablero->turno), sizeof(int), 1, archivo);
+	fread(&(Tablero->filas), sizeof(int), 1, archivo);
+	fread(&(Tablero->columnas), sizeof(int), 1, archivo);
+	int fichasJ1Aux;
+	fread(&fichasJ1Aux, sizeof(int), 1, archivo);
+	int fichasJ2Aux;
+	fread(&fichasJ2Aux, sizeof(int), 1, archivo);
+
+	char *posciciones = malloc (Tablero->filas * Tablero->columnas);
+	fread(posciciones, Tablero->filas * Tablero->columnas, 1, archivo);
+
+	Tablero->matriz = malloc (Tablero->filas*sizeof(int*));
+	
+	for (i=0; i<Tablero->filas; i++)
 	{
-		switch(caracter)
-		{
-			case 0:
-			{
-				printf("Entra aca\n");
-				Tablero->filas=(int)(c-'0');
-				caracter++;
-				break;
-			}
-			case 2:
-			{
-				Tablero->columnas=(int)(c-'0');
-				caracter++;
-				break;
-			}
-			case 4:
-			{
-				*turno=(int)(c-'0');
-				caracter++;
-				break;
-			}
-			case 6:
-			{
-				*opcion=(int)(c-'0');
-				caracter++;
-				break;
-			}
-			default:
-			{
-				caracter++;
-				break;
-			}
-		}
-	}*/
-	printf("PRUEBA\n");
-	printf("%d\n", Tablero->filas);
-	printf("%d\n", Tablero->columnas);
-	printf("%d\n", *turno);
-	printf("%d\n", *opcion);
-	(*Tablero).matriz=malloc(((*Tablero).filas)*sizeof(char*));
-	for(i=0;i<(*Tablero).filas;i++)
-	{
-		(*Tablero).matriz[i]=malloc((*Tablero).columnas);
+		Tablero->matriz[i] = malloc (Tablero->columnas*sizeof(int));
 	}
-	i=0;
-	j=0;
-	while((c=fgetc(fPointer))!=EOF)
+	
+	for (i=0; i<Tablero->filas; i++)
 	{
-		if(c=='\n')
+		for (j=0; j<Tablero->columnas; j++)
 		{
-			i++;
-			j=0;
-		}	
-		else if(c!=' ')
-		{
-			(*Tablero).matriz[i][j] = ((c=='A')?1:((c=='Z')?2:0));
-			j++;
+			Tablero->matriz[i][j] = ((posciciones[k] == '0') ? 0 : ((posciciones[k] == 'A') ? 1 : 2));
+			k++;
 		}
 	}
-	fclose(fPointer);
+
+	fclose(archivo);
+
 	return 0;
 }
