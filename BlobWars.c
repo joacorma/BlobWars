@@ -4,10 +4,10 @@
 #include <string.h>
 #include <math.h>
 #include <ctype.h>
-#include "blobsBackV4.h"
+#include "blobsBack.h"
 
 
-#define MAX_ERRORES 8
+#define MAX_ERRORES 9
 #define MIN_FILAS 5
 #define MAX_FILAS 30
 #define MIN_COLUMNAS 5
@@ -179,6 +179,9 @@ void ProcesoJuego (tipoMatriz *Tablero, char *idJugador, char **vecErrores)
 
 void CargarErrores (char **vecErrores)
 {
+	int i;
+	for(i=0;i<MAX_ERRORES;i++)
+		vecErrores[i]=malloc(70);
 	vecErrores[0] = "La opcion debe ser entre 1 y 4";
 	vecErrores[1] = "La cantidad de filas debe ser entre 5 y 30";
 	vecErrores[2] = "La cantidad de columnas debe ser entre 5 y 30";
