@@ -1,6 +1,17 @@
 #ifndef _blobsBack_h
 #define _blobsBack_h
 
+#define MAX_ERRORES 10
+#define MIN_FILAS 5
+#define MAX_FILAS 30
+#define MIN_COLUMNAS 5
+#define MAX_COLUMNAS 30
+#define BLOQUE 5
+#define SAVE 0
+#define FILENAME 1
+
+#define BORRAR_BUFFER while (getchar()!='\n')
+
 typedef struct
 	{	
 		int filas;
@@ -10,23 +21,19 @@ typedef struct
 		int turno;
 	} tipoMatriz;
 
-int ** CrearTablero(tipoMatriz *Tablero);
-void EjecutarJugada(tipoMatriz *Tablero, int *mov);
-int ValidarParametros(tipoMatriz *Tablero, char **movimiento, int *mov, char **vecErrores);
-int CalcularDistancia(int u, int x, int v, int y);
-void CrearBlob(tipoMatriz *Tablero ,int fila, int columna);
-void Adyacentes(tipoMatriz *Tablero, int fila, int columna);
-void Salto(tipoMatriz *Tablero, int *mov);
-int Fin(tipoMatriz *Tablero);
-void LLenarTablero(tipoMatriz *Tablero);
-int ContarBlobs(tipoMatriz *Tablero);
-int ValidarSave(char **movimiento);
-int RecuperarJuego(tipoMatriz *Tablero, char **vecErrores);
+void TableroInicial (tipoMatriz *Tablero, char *contenidoTablero);
+void EjecutarJugada (tipoMatriz *Tablero, int *mov);
+void LLenarTablero (tipoMatriz *Tablero);
+void CrearBlob (tipoMatriz *Tablero ,int fila, int columna);
+void Salto (tipoMatriz *Tablero, int *mov);
+void Adyacentes (tipoMatriz *Tablero, int fila, int columna);
+int ValidarParametros (tipoMatriz *Tablero, char **movimiento, int *mov, char **vecErrores, int *error);
+int ValidarSave (char **movimiento);
+int ValidarLimites (tipoMatriz *Tablero, int *mov);
+int CalcularDistancia (int u, int x, int v, int y);
+int Fin (tipoMatriz *Tablero);
+int ContarFichas (tipoMatriz *Tablero, int jugador);
 int JugadaComputadora (tipoMatriz *Tablero, int *mov);
-char * leerCaracteres ();/*hay que sacarlo de aca*/
-void ImprimirError (char **vecErrores, int nroError);/*hay que sacarla de aca, y ponerla en front*/
-void Save(tipoMatriz *Tablero, char  *movimiento, char *idJugador);
-int JugadaComputadora(tipoMatriz *Tablero, int *mov);
-int ContarFichas(tipoMatriz *Tablero, int jugador);
+int ** AlocarTablero (tipoMatriz *Tablero);
 
 #endif
