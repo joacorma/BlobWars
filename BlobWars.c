@@ -25,9 +25,9 @@ int RecuperarJuego(tipoMatriz *Tablero, char **contenidoTablero, char **vecError
 int main ()
 {
 	srand(time(NULL)); 
-	char *vecErrores[MAX_ERRORES], idJugador[3] = {'0', 'A', 'Z'}, *contenidoTablero; 
+	char *vecErrores[MAX_ERRORES], idJugador[3] = {'0', 'A', 'Z'}, *contenidoTablero;
 	tipoMatriz Tablero;
-	Tablero.opcion = 0; 												/* Se inicializa en 0 para que entre la primera vez al while */
+	Tablero.opcion = 0;												/* Se inicializa en 0 para que entre la primera vez al while */
 
 	CargarErrores(vecErrores);
 	
@@ -317,16 +317,16 @@ char ValidarSiNO (char **vecErrores) 																/* Valida si se ingresa si 
 {
 	int s_n;
 
-	printf("Desea guardar el juego? (0 por no/1 por si) ");
+	printf("Desea guardar el juego? (1 por no/2 por si) ");
 	s_n = get_int();
-	while ((s_n != 0) && (s_n != 1))
+	while ((s_n != 1) && (s_n != 2))
 	{
 		ImprimirError(vecErrores, 9);
 		printf("Desea guardar el juego? (s/n) ");
 		s_n = get_int();		
 	}
 
-	return ((s_n==1)?'s':'n');
+	return ((s_n==2)?'s':'n');
 }
 
 void GuardarJuego (tipoMatriz *Tablero, char  *movimiento, char *idJugador)
@@ -367,14 +367,24 @@ int RecuperarJuego(tipoMatriz *Tablero, char **contenidoTablero, char **vecError
 	char *nombre = NULL;
 	FILE * archivo;
 	
-	printf("Introduzca el nombre del archivo: ");
+	printf("Introduzca el nombre del archivo o \"cancelar\" para volver al menu: ");
 	nombre = leerCaracteres();
+	if(strcmp(nombre, "cancelar")==0) /*check quit*/
+	{
+		(Tablero->opcion=0);
+		return 1;
+	}
 	archivo = fopen(nombre, "r");
 	while (archivo == NULL)
 	{
 		ImprimirError(vecErrores, 8);
-		printf("Introduzca el nombre del archivo: ");
+		printf("Introduzca el nombre del archivo o \"cancelar\" para volver al menu: ");
 		nombre = leerCaracteres();
+		if(strcmp(nombre, "cancelar")==0) /*check quit*/
+		{
+			(Tablero->opcion=0);
+			return 1;
+		}
 		archivo = fopen(nombre, "r");
 	}
 	
