@@ -117,19 +117,19 @@ void ProcesoJuego (tipoMatriz *Tablero, char *idJugador, char **vecErrores)
 			{
 				fin = 1;
 				printf("\nHa salido de la partida\n");
+				int rta=ValidarSiNO(vecErrores);
 
-
-				/*if (ValidarSiNO(vecErrores) == 's')
+				if (rta == 's')
 				{
 					printf("\nIntroduzca el nombre del archivo: ");
 					filename = leerCaracteres();
-					Save (Tablero, filename, idJugador);
+					GuardarJuego(Tablero, filename, idJugador);
 				}
 				else
 				{
 					printf(" Pulse enter para volver al menu principal...\n");
 					getchar();
-				}*/
+				}
 			}
 			break;
 
@@ -319,15 +319,14 @@ char ValidarSiNO (char **vecErrores) 																/* Valida si se ingresa si 
 
 	printf("Desea guardar el juego? (0 por no/1 por si) ");
 	s_n = get_int();
-	
-	while ((s_n != 0) && (s_n != 1));
+	while ((s_n != 0) && (s_n != 1))
 	{
 		ImprimirError(vecErrores, 9);
 		printf("Desea guardar el juego? (s/n) ");
 		s_n = get_int();		
 	}
 
-	return ((s_n == 0) ? 'n' : 's');
+	return ((s_n==1)?'s':'n');
 }
 
 void GuardarJuego (tipoMatriz *Tablero, char  *movimiento, char *idJugador)
