@@ -6,50 +6,38 @@
 #include <ctype.h>
 #include "blobsBack.h"
 
-
-#define MAX_ERRORES 9
-#define MIN_FILAS 5
-#define MAX_FILAS 30
-#define MIN_COLUMNAS 5
-#define MAX_COLUMNAS 30
-#define BLOQUE 5
-#define SAVE 0
-#define FILENAME 1
-
-#define BORRAR_BUFFER while (getchar()!='\n')
-#define GENERAR_COORDENADA(x,y) (x*100 + y)
-#define GENERAR_FILA(x) (floor(x/100))
-#define GENERAR_COLUMNA(x) (x%100)
-
 void ProcesoJuego (tipoMatriz *Tablero, char *idJugador, char **vecErrores);
 void CargarErrores (char **vecErrores);
 void ImprimirError (char **vecErrores, int nroError);
 void PantallaInicial ();
-int get_filas ();
-int get_columnas ();
+void CondicionesInicilaes (tipoMatriz *Tablero, char **vecErrores);
+void CrearTablero (tipoMatriz *Tablero, char *contenidoTablero, char **vecErrores);
 void ImprimirTablero (tipoMatriz *Tablero, char *idJugador);
-int CapturarJugada (tipoMatriz *Tablero, char **movimiento, int *coordenadas, char **vecErrores);
+void GuardarJuego (tipoMatriz *Tablero, char  *movimiento, char *idJugador);
+char ValidarSiNO (char **vecErrores);
 char * leerCaracteres ();
 int get_int ();
+int get_filas ();
+int get_columnas ();
+int CapturarJugada (tipoMatriz *Tablero, char **movimiento, int *coordenadas, char **vecErrores);
+int RecuperarJuego(tipoMatriz *Tablero, char **contenidoTablero, char **vecErrores);
 
 int main ()
 {
-	srand(time(NULL));
-	char *vecErrores[MAX_ERRORES], idJugador[3] = {'0', 'A', 'Z'};
+	srand(time(NULL)); 
+	char *vecErrores[MAX_ERRORES], idJugador[3] = {'0', 'A', 'Z'}, *contenidoTablero; 
 	tipoMatriz Tablero;
-	Tablero.filas = 0;
-	Tablero.columnas = 0;
-	Tablero.opcion = 0;
-	Tablero.turno = 0;
+	Tablero.opcion = 0; 												/* Se inicializa en 0 para que entre la primera vez al while */
 
 	CargarErrores(vecErrores);
 	
 	while (Tablero.opcion != 4)
 	{
+		contenidoTablero = NULL;
 		PantallaInicial ();
 		printf("Elegir opcion: ");
 		Tablero.opcion = get_int();
-		while (Tablero.opcion < 1 || Tablero.opcion > 4)
+		while (Tablero.opcion < 1 || Tablero.opcion > 4) 								/* Controla que la opcion este entre 1 y 4 */
 		{
 			ImprimirError(vecErrores, 0);
 			printf("Elegir opcion: ");
@@ -58,62 +46,49 @@ int main ()
 
 		switch(Tablero.opcion)
 		{
-			case 3: 
+			case 3: 																	/* Si la opcion es 3 va a recuperar juego */
 			{	
 				while (Tablero.opcion == 3)
-					RecuperarJuego(&Tablero, vecErrores);
+					RecuperarJuego(&Tablero, &contenidoTablero, vecErrores); 	/* contenidoTablero guarda los el tablero recuperado */
 			}
 			break;
-			case 4: 
+			
+			case 4: 																	/* Si la opcion es 4 termina el programa */
 			{
 				printf("Gracias por jugar al Blob Wars. Hasta pronto!\n\n");
 				return 0;
 			}
 		}
-
-		ProcesoJuego (&Tablero, idJugador, vecErrores);
+																						/* Si la opcion es 1 0 2 no ejecuto el juego */
+		CrearTablero(&Tablero, contenidoTablero, vecErrores);
+		ProcesoJuego(&Tablero, idJugador, vecErrores);
 	}
 	return 0;
 }
 
-void ProcesoJuego (tipoMatriz *Tablero, char *idJugador, char **vecErrores)
+void ProcesoJuego (tipoMatriz *Tablero, char *idJugador, char **vecErrores) 
 {	
-	char *movimiento = NULL;
-	int fin = 0, accion, ganador, coordenadas[4];
-	
-	if(Tablero->filas == 0)
-	{
-		Tablero->filas = get_filas();
-		while ((Tablero->filas < MIN_FILAS) || (Tablero->filas > MAX_FILAS))
-		{
-			ImprimirError(vecErrores, 1);
-			Tablero->filas = get_filas();
-		}
+	char *movimiento = NULL, *filename;
+	int fin = 0, accion, ganador, coordenadas[4], fichasJugador1, fichasJugador2;		
 
-		Tablero->columnas = get_columnas();
-		while ((Tablero->columnas < MIN_COLUMNAS) || (Tablero->columnas > MAX_COLUMNAS))
-		{
-			ImprimirError(vecErrores, 2);
-			Tablero->columnas = get_columnas();
-		}
+	printf("\n");
+	printf("Jugador 1: %c\n", idJugador[1]);
+	printf("Jugador 2: %c\n", idJugador[2]);
+	printf("\n");
+	printf("Para introducir un movimiento debe hacerlo de esta forma: [F1,C1][F2,C2]\n");
+	printf("Por ejemplo: [0,0][0,1]\n");
+	printf("\nPulse enter para comenzar el juego...");
+	getchar(); 
 
-		printf("\n");
-		printf("Jugador 1: %c\n", idJugador[1]);
-		printf("Jugador 2: %c\n", idJugador[2]);
-		printf("\n");
-		printf("Para introducir un movimiento debe hacerlo de esta forma: [F1,C1][F2,C2]\n");
-		printf("Por ejemplo: [0,0][0,1]\n");
-		printf("Pulse enter para comenzar el juego...");
-		getchar();
-
-		Tablero->matriz = CrearTablero (Tablero);
-		Tablero->turno = (int) (rand() / ( (double) RAND_MAX + 1) * (2 - 1 + 1) + 1);
-	}
-
-	while (fin == 0)
+	while (fin == 0) 						/* Se juega hasta que fin sea distinto 0. Fin es cero cuando uno se queda sin movimientos */
 	{
 		ImprimirTablero(Tablero, idJugador);
 		printf("\nTurno Jugador %d\n", Tablero->turno);
+		if (Tablero->opcion == 2 && Tablero->turno == 2)
+		{
+			printf("\nPulse enter continuar...\n");
+			getchar();
+		}
 
 		if (Tablero->opcion == 2 && Tablero->turno == 2)
 			accion = JugadaComputadora (Tablero, coordenadas);
@@ -122,11 +97,11 @@ void ProcesoJuego (tipoMatriz *Tablero, char *idJugador, char **vecErrores)
 	
 		switch (accion)
 		{
-			case 0: 
+			case 1: 									/* Accion es 1 cuando se pasa un movimento valido del usuario o la maquina */
 			{
 				EjecutarJugada (Tablero, coordenadas);
 
-				if (Tablero->turno == 1)
+				if (Tablero->turno == 1) 																		/* Cambia el turno */
 					Tablero->turno = 2;
 				else
 					Tablero->turno = 1;
@@ -135,53 +110,67 @@ void ProcesoJuego (tipoMatriz *Tablero, char *idJugador, char **vecErrores)
 			}
 			break;
 			
-			case 1: Save (Tablero, movimiento, idJugador);
+			case 2: GuardarJuego(Tablero, movimiento, idJugador); 									/* Accion es 2 si introduce save */
 			break;
 		
-			case 2: 
+			case 3: 																			/* Accion es 3 si se introduce quit */
 			{
 				fin = 1;
-				free(Tablero->matriz);
-				Tablero->filas = 0;
-				Tablero->columnas = 0;
-				printf("La partida ha sido terminada. Pulse enter para continuar...\n");
-				getchar();
+				printf("\nHa salido de la partida\n");
+
+
+				/*if (ValidarSiNO(vecErrores) == 's')
+				{
+					printf("\nIntroduzca el nombre del archivo: ");
+					filename = leerCaracteres();
+					Save (Tablero, filename, idJugador);
+				}
+				else
+				{
+					printf(" Pulse enter para volver al menu principal...\n");
+					getchar();
+				}*/
 			}
 			break;
 
-			case 3:
+			case 4:																/* Accion es 4 si la maquina se queda sin movimientos */
 			{
 				fin = 1;
-				accion = 0;
+				accion = 1;													/* Se pone accion en 1 para que imprima el tablero final */
 			}
 		}
 	}
 
-	if (accion == 0)
+	if (accion == 1) 																	/* Si accion es 1 es porque termino el juego */
 	{	
-		ImprimirTablero(Tablero, idJugador);
+		ImprimirTablero(Tablero, idJugador);								/* Se imprime el tablero con el ultimo movimiento valido */
+		printf("\nEl Jugador %d no tiene mas mvimentos disponibles\n", Tablero->turno);
+		printf("\nPulse enter para continuar...\n");
+		getchar();
+
 		LLenarTablero (Tablero);
-		printf("\n");
-		ImprimirTablero(Tablero, idJugador);
-	
-		ganador = ContarBlobs (Tablero);
+		ImprimirTablero(Tablero, idJugador);		/* Se imprime el tablero llenado con las fichas del que todavia tenia movimientos */
+		
+		fichasJugador1 = ContarFichas(Tablero, 1);															/* Determina el ganador */
+		fichasJugador2 = (Tablero->filas * Tablero->columnas) - fichasJugador1; 
+		ganador = fichasJugador1 - fichasJugador2;
 		if (ganador == 0)
-			printf("Hubo un empate\n");
+			printf("\nHubo un empate\n");
 		else
-			printf("El ganador es el Jugador %d\n", ganador);
+			printf("\nEl ganador es el Jugador %d\n", ((ganador > 0) ? 1 : 2));
 	
-		printf("Pulse enter para volver al menu principal...\n");
+		printf("\nPulse enter para volver al menu principal...\n");
 		getchar();
 	}
 
+	free(Tablero->matriz); 												/* Se libera la el espacio donde se habia creado el tablero */
 }
 
 
-void CargarErrores (char **vecErrores)
+void CargarErrores (char **vecErrores) 															/* Inicializa el vector de errores */
 {
 	int i;
-	for(i=0;i<MAX_ERRORES;i++)
-		vecErrores[i]=malloc(70);
+
 	vecErrores[0] = "La opcion debe ser entre 1 y 4";
 	vecErrores[1] = "La cantidad de filas debe ser entre 5 y 30";
 	vecErrores[2] = "La cantidad de columnas debe ser entre 5 y 30";
@@ -190,16 +179,17 @@ void CargarErrores (char **vecErrores)
 	vecErrores[5] = "Ese movimiento no esta dentro del rango de movimientos posibles";
 	vecErrores[6] = "Ese casillero no corresponde a un Blob de tu color";
 	vecErrores[7] = "Ese casillero ya esta ocupado";
-	vecErrores[8] = "No existe ese archivo";
+	vecErrores[8] = "El archivo esta corrupto o no existe";
+	vecErrores[9] = "Introduzca s o n";
 }
 
-void ImprimirError (char **vecErrores, int nroError)
+void ImprimirError (char **vecErrores, int nroError) 											/* Imprime el error correspondiente */
 {
 	printf("ERROR: %s\n\n", vecErrores[nroError]);
 
 }
 
-void PantallaInicial ()
+void PantallaInicial () 																						/* Menu prinicipal */
 {
 	system("clear");
 
@@ -210,7 +200,34 @@ void PantallaInicial ()
 	printf("4. Terminar\n\n");
 }
 
-int get_filas ()
+void CrearTablero (tipoMatriz *Tablero, char *contenidoTablero, char **vecErrores) 						/* Crea el tablero de juego */
+{
+	if (contenidoTablero == NULL)
+		CondicionesInicilaes(Tablero, vecErrores);
+	Tablero->matriz = AlocarTablero(Tablero);
+	TableroInicial(Tablero, contenidoTablero);
+}
+
+void CondicionesInicilaes (tipoMatriz *Tablero, char **vecErrores) 							/* Obtiene filas, columnas y primer turno */
+{
+	Tablero->filas = get_filas();
+	while ((Tablero->filas < MIN_FILAS) || (Tablero->filas > MAX_FILAS))
+	{
+		ImprimirError(vecErrores, 1);
+		Tablero->filas = get_filas();
+	}
+
+	Tablero->columnas = get_columnas();
+	while ((Tablero->columnas < MIN_COLUMNAS) || (Tablero->columnas > MAX_COLUMNAS))
+	{
+		ImprimirError(vecErrores, 2);
+		Tablero->columnas = get_columnas();
+	}
+
+	Tablero->turno = (int) (rand() / ( (double) RAND_MAX + 1) * (2 - 1 + 1) + 1);
+}
+
+int get_filas () 																						/* Lee la cantidad de filas */
 {
 	int fila;
 	printf("Ingrese la cantidad de filas del tablero (entre 5 y 30): ");
@@ -219,7 +236,7 @@ int get_filas ()
 
 }
 
-int get_columnas ()
+int get_columnas () 																				/* Lee la cantidad de columnas */
 {
 	int col;
 	printf("Ingrese la cantidad de columnas del tablero (entre 5 y 30): ");
@@ -228,7 +245,7 @@ int get_columnas ()
 }
 
 
-void ImprimirTablero (tipoMatriz *Tablero, char *idJugador)
+void ImprimirTablero (tipoMatriz *Tablero, char *idJugador)  					/* Recibe un tablero de ints y lo imprime con chars */
 {
 	int i, j;
 	
@@ -239,57 +256,140 @@ void ImprimirTablero (tipoMatriz *Tablero, char *idJugador)
 			printf("%c ", idJugador[Tablero->matriz[i][j]]);
 		printf("\n");
 	}
+	printf("\nJugador 1: %d fichas\t", ContarFichas(Tablero, 1)); 								/* Imprime las fichas de cada jugador */
+	printf("Jugador 2: %d fichas\n", ContarFichas(Tablero, 2));
 }
 
 int CapturarJugada (tipoMatriz *Tablero, char **movimiento, int *coordenadas, char **vecErrores)
 {
-	int datosInvalidos = 3;
+	int datosValidos = 0, error; 														/* Se inicializa en 0 para que entre al while */
 	
-	while (datosInvalidos > 2)
+	while (datosValidos == 0) 							
 	{
 		printf("Introduzca un movimiento: ");
-		*movimiento = leerCaracteres();
-		datosInvalidos = ValidarParametros (Tablero, movimiento, coordenadas, vecErrores);
-		if (datosInvalidos > 2)
-			ImprimirError(vecErrores, datosInvalidos);
+		*movimiento = leerCaracteres();                                                     /* En movimiento se gurda lo que se leyo */
+		datosValidos = ValidarParametros (Tablero, movimiento, coordenadas, vecErrores, &error);
+		if (datosValidos == 0)
+			ImprimirError(vecErrores, error);
 	}
 	
-	return datosInvalidos;
+	return datosValidos; 																/* Retorna un movimiento valido, save o quit */
 }
 
-char * leerCaracteres()
+char * leerCaracteres() 																		/* lee caracteres de entrada estandar */
 {
-	char *aux = NULL, *string = malloc(sizeof(char));
+	char *aux = NULL, *string = malloc(sizeof(char)); 								/* El malloc inicial es por si no introduce nada */
 	int i = 0, a;
 	while ((a = getchar()) != '\n')
 	{
 		if (i % BLOQUE == 0)
 		{
-			aux = realloc(string, (i + BLOQUE)*sizeof(char));
+			aux = realloc(string, (i + BLOQUE)*sizeof(char));							/* Realoca cada vez que se llena el bloque */
 			if (aux != NULL)
 				string = aux;
 		}
 		string[i++] = a;
 	}
 	string[i++] = 0;
-	string = realloc(string, i*sizeof(char));
+	string = realloc(string, i*sizeof(char)); 					/* Realoca para no desperdiciar si sobra espacio del ultimo bloque */
 	return string;
 }
 
-int get_int()
+int get_int() 																							/* Captura un numero entero */
 {
 	int a, entero = 0;
 
 	while ((a = getchar()) != '\n')
 	{
 		if (isdigit(a))
-			entero = 10*entero + (a - '0');
+			entero = 10*entero + (a - '0'); 															/* Convierte de char a entero */
 		else
 		{	
-			BORRAR_BUFFER;
+			BORRAR_BUFFER; 													/* Limpia el buffer por si quedan caracteres sin agarrar */
 			return -1;
 		}
 	}
 
 	return entero;
+}
+
+char ValidarSiNO (char **vecErrores) 																/* Valida si se ingresa si o no */
+{
+	int s_n;
+
+	printf("Desea guardar el juego? (0 por no/1 por si) ");
+	s_n = get_int();
+	
+	while ((s_n != 0) && (s_n != 1));
+	{
+		ImprimirError(vecErrores, 9);
+		printf("Desea guardar el juego? (s/n) ");
+		s_n = get_int();		
+	}
+
+	return ((s_n == 0) ? 'n' : 's');
+}
+
+void GuardarJuego (tipoMatriz *Tablero, char  *movimiento, char *idJugador)
+{
+	int i, j, k = 0, fichasAuxJ1, fichasAuxJ2;
+	char * posciciones = malloc(Tablero->filas * Tablero->columnas);
+	FILE * archivo;
+
+	archivo = fopen(movimiento, "w");
+	fwrite(&(Tablero->opcion), sizeof(int), 1, archivo);
+	fwrite(&(Tablero->turno), sizeof(int), 1, archivo);
+	fwrite(&(Tablero->filas), sizeof(int), 1, archivo);
+	fwrite(&(Tablero->columnas), sizeof(int), 1, archivo);
+	fichasAuxJ1 = ContarFichas(Tablero, 1);
+	fwrite(&fichasAuxJ1, sizeof(int), 1, archivo);
+	fichasAuxJ2 = ContarFichas(Tablero, 2);
+	fwrite(&fichasAuxJ2, sizeof(int), 1, archivo);
+
+	for (i=0; i<Tablero->filas; i++)
+	{
+		for (j=0; j<Tablero->columnas; j++)
+		{
+			posciciones[k] = idJugador[Tablero->matriz[i][j]];
+			k++;
+		}
+	}
+	fwrite(posciciones, Tablero->filas * Tablero->columnas, 1, archivo);
+	
+	fclose(archivo);
+
+	printf("Partida guardada. Pulse enter para continuar...\n");
+	getchar();
+}
+
+int RecuperarJuego(tipoMatriz *Tablero, char **contenidoTablero, char **vecErrores)
+{
+	int i=0, j=0, k=0, fichasJ1Aux, fichasJ2Aux;
+	char *nombre = NULL;
+	FILE * archivo;
+	
+	printf("Introduzca el nombre del archivo: ");
+	nombre = leerCaracteres();
+	archivo = fopen(nombre, "r");
+	while (archivo == NULL)
+	{
+		ImprimirError(vecErrores, 8);
+		printf("Introduzca el nombre del archivo: ");
+		nombre = leerCaracteres();
+		archivo = fopen(nombre, "r");
+	}
+	
+	fread(&(Tablero->opcion), sizeof(int), 1, archivo);
+	fread(&(Tablero->turno), sizeof(int), 1, archivo);
+	fread(&(Tablero->filas), sizeof(int), 1, archivo);
+	fread(&(Tablero->columnas), sizeof(int), 1, archivo);
+	fread(&fichasJ1Aux, sizeof(int), 1, archivo);
+	fread(&fichasJ2Aux, sizeof(int), 1, archivo);
+
+	*contenidoTablero = malloc (Tablero->filas * Tablero->columnas);
+	fread(*contenidoTablero, Tablero->filas * Tablero->columnas, 1, archivo);
+
+	fclose(archivo);
+
+	return 0;
 }
