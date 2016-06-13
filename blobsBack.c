@@ -281,7 +281,7 @@ int ContarFichas(tipoMatriz *Tablero, int jugador)
 
 int JugadaComputadora (tipoMatriz *Tablero, int *mov)
 {
-	int i, j, k, l, n, m, comidas, comidasMax = 0, primerMov = 0, coin, distancia = 2, cambio;
+	int i, j, k, l, n, m, comidas, comidasMax = 0, posOrigen = -1, posDestino = -1, coin, distancia = 2, cambio;
 
 	for (i=0; i<Tablero->filas; i++)
 	{
@@ -317,7 +317,7 @@ int JugadaComputadora (tipoMatriz *Tablero, int *mov)
 									cambio = 0;
 									if (comidas > comidasMax)
 										cambio = 1;
-									else if (comidas == comidasMax && primerMov != 0)
+									else if (comidas == comidasMax && posDestino != -1)
 									{
 										if (distancia > CalcularDistancia(i, j, k, l))
 											cambio = 1;
@@ -331,11 +331,8 @@ int JugadaComputadora (tipoMatriz *Tablero, int *mov)
 									if (cambio == 1)
 									{
 										comidasMax = comidas;
-										primerMov = 1;
-										mov[0] = i;
-										mov[1] = j;
-										mov[2] = k;
-										mov[3] = l;
+										posOrigen = i*100 + j;
+ 										posDestino = (k*100 + l);
 										distancia = CalcularDistancia(i, j, k, l);
 
 									}
@@ -347,9 +344,14 @@ int JugadaComputadora (tipoMatriz *Tablero, int *mov)
 			}
 		}
 	}
-
 	if (comidasMax != 0)
-		return 1;
+	{
+ 			mov[0] = GENERAR_FILA(posOrigen);
+ 			mov[1] = GENERAR_COLUMNA(posOrigen);
+ 			mov[2] = GENERAR_FILA(posDestino);
+ 			mov[3] = GENERAR_COLUMNA(posDestino);
+ 			return 1;
+ 	}
 
 	coin = 1;
 	for (i=0; i<Tablero->filas; i++)
@@ -368,14 +370,14 @@ int JugadaComputadora (tipoMatriz *Tablero, int *mov)
 							{
 								if (Tablero->matriz[k][l] == 0)
 								{
-									if (primerMov != -1)
+									if (posDestino != -1)
 										coin = rand()%2 + 1;
 									if (coin == 1)
 									{
-										mov[0] = i;
-										mov[1] = j;
-										mov[2] = k;
-										mov[3] = j;
+										posOrigen = i*100 + j;
+ 										posDestino = k*100 + l;
+											
+
 									}
 								}
 							}
@@ -385,9 +387,14 @@ int JugadaComputadora (tipoMatriz *Tablero, int *mov)
 			}
 		}
 	}
-	
-	if (primerMov == -1)
-		return 4;
-
-	return 1;
+	if (posDestino == -1)
+ 		return 4;
+ 	
+ 	mov[0] = GENERAR_FILA(posOrigen);
+ 	mov[1] = GENERAR_COLUMNA(posOrigen);
+ 	mov[2] = GENERAR_FILA(posDestino);
+ 	mov[3] = GENERAR_COLUMNA(posDestino);
+ 
+ 	
+ 	return 1;
 }
