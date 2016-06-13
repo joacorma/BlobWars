@@ -27,6 +27,7 @@ int main ()
 	srand(time(NULL)); 
 	char *vecErrores[MAX_ERRORES], idJugador[3] = {'0', 'A', 'Z'}, *contenidoTablero;
 	tipoMatriz Tablero;
+	int noLoad=1;
 	Tablero.opcion = 0;												/* Se inicializa en 0 para que entre la primera vez al while */
 
 	CargarErrores(vecErrores);
@@ -43,20 +44,34 @@ int main ()
 			printf("Elegir opcion: ");
 			Tablero.opcion = get_int();
 		}
-
-		switch(Tablero.opcion)
+		while(Tablero.opcion == 3 || Tablero.opcion == 4)								/* Este while permite que el jugador cancele la opcion 3 */
 		{
-			case 3: 																	/* Si la opcion es 3 va a recuperar juego */
-			{	
-				while (Tablero.opcion == 3)
-					RecuperarJuego(&Tablero, &contenidoTablero, vecErrores); 	/* contenidoTablero guarda los el tablero recuperado */
-			}
-			break;
-			
-			case 4: 																	/* Si la opcion es 4 termina el programa */
+			switch(Tablero.opcion)
 			{
-				printf("Gracias por jugar al Blob Wars. Hasta pronto!\n\n");
-				return 0;
+				case 3: 																	/* Si la opcion es 3 va a recuperar juego */
+				{	
+					while (Tablero.opcion == 3)
+						noLoad=RecuperarJuego(&Tablero, &contenidoTablero, vecErrores); 	/* contenidoTablero guarda los el tablero recuperado */
+					if(noLoad == 0)
+					{
+						PantallaInicial ();
+						printf("Elegir opcion: ");
+						Tablero.opcion = get_int();
+						while (Tablero.opcion < 1 || Tablero.opcion > 4) 								/* Controla que la opcion este entre 1 y 4 */
+						{
+							ImprimirError(vecErrores, 0);
+							printf("Elegir opcion: ");
+							Tablero.opcion = get_int();
+						}
+					}
+				}
+				break;
+			
+				case 4: 																	/* Si la opcion es 4 termina el programa */
+				{
+					printf("Gracias por jugar al Blob Wars. Hasta pronto!\n\n");
+					return 0;
+				}
 			}
 		}
 																						/* Si la opcion es 1 0 2 no ejecuto el juego */
@@ -123,11 +138,17 @@ void ProcesoJuego (tipoMatriz *Tablero, char *idJugador, char **vecErrores)
 				{
 					printf("\nIntroduzca el nombre del archivo: ");
 					filename = leerCaracteres();
+					while (filename[0] == 0)
+					{
+						ImprimirError(vecErrores, 10);
+						printf("\nIntroduzca el nombre del archivo: ");
+						filename = leerCaracteres();
+					}
 					GuardarJuego(Tablero, filename, idJugador);
 				}
 				else
 				{
-					printf(" Pulse enter para volver al menu principal...\n");
+					printf("Pulse enter para volver al menu principal...\n");
 					getchar();
 				}
 			}
@@ -181,6 +202,7 @@ void CargarErrores (char **vecErrores) 															/* Inicializa el vector de
 	vecErrores[7] = "Ese casillero ya esta ocupado";
 	vecErrores[8] = "El archivo esta corrupto o no existe";
 	vecErrores[9] = "Introduzca s o n";
+	vecErrores[10] = "No es un nombre valido para el archivo";
 }
 
 void ImprimirError (char **vecErrores, int nroError) 											/* Imprime el error correspondiente */
@@ -372,7 +394,7 @@ int RecuperarJuego(tipoMatriz *Tablero, char **contenidoTablero, char **vecError
 	if(strcmp(nombre, "cancelar")==0) /*check quit*/
 	{
 		(Tablero->opcion=0);
-		return 1;
+		return 0;
 	}
 	archivo = fopen(nombre, "r");
 	while (archivo == NULL)
@@ -383,7 +405,7 @@ int RecuperarJuego(tipoMatriz *Tablero, char **contenidoTablero, char **vecError
 		if(strcmp(nombre, "cancelar")==0) /*check quit*/
 		{
 			(Tablero->opcion=0);
-			return 1;
+			return 0;
 		}
 		archivo = fopen(nombre, "r");
 	}
@@ -400,5 +422,5 @@ int RecuperarJuego(tipoMatriz *Tablero, char **contenidoTablero, char **vecError
 
 	fclose(archivo);
 
-	return 0;
+	return 1;
 }

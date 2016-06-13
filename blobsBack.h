@@ -1,7 +1,7 @@
 #ifndef _blobsBack_h
 #define _blobsBack_h
 
-#define MAX_ERRORES 10
+#define MAX_ERRORES 11
 #define MIN_FILAS 5
 #define MAX_FILAS 30
 #define MIN_COLUMNAS 5

@@ -143,12 +143,12 @@ int ValidarLimites (tipoMatriz *Tablero, int *mov)
 			return 1;
 		if (i%2 == 0)
 		{
-			if (mov[i] > Tablero->filas)
+			if (mov[i] >= Tablero->filas)
 				return 1;
 		}
 		else
 		{
-			if (mov[i] > Tablero->columnas)
+			if (mov[i] >= Tablero->columnas)
 				return 1;
 		}
 	}
