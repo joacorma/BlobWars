@@ -10,6 +10,8 @@
 #define SAVE 0
 #define FILENAME 1
 
+#define GENERAR_FILA(x) (floor(x/100))
+#define GENERAR_COLUMNA(x) (x%100)
 #define BORRAR_BUFFER while (getchar()!='\n')
 
 typedef struct
