@@ -345,7 +345,7 @@ void GuardarJuego (tipoMatriz *Tablero, char  *movimiento, char *idJugador)
 	char * posciciones = malloc(Tablero->filas * Tablero->columnas);
 	FILE * archivo;
 
-	archivo = fopen(movimiento, "w");
+	archivo = fopen(movimiento, "wb");
 	fwrite(&(Tablero->opcion), sizeof(int), 1, archivo);
 	fwrite(&(Tablero->turno), sizeof(int), 1, archivo);
 	fwrite(&(Tablero->filas), sizeof(int), 1, archivo);
@@ -384,7 +384,7 @@ int RecuperarJuego(tipoMatriz *Tablero, char **contenidoTablero, char **vecError
 		(Tablero->opcion=0);
 		return 0;
 	}
-	archivo = fopen(nombre, "r");
+	archivo = fopen(nombre, "rb");
 	while (archivo == NULL)
 	{
 		ImprimirError(vecErrores, 8);
