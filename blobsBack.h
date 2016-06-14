@@ -12,9 +12,11 @@
 
 #define GENERAR_FILA(x) (floor(x/100))
 #define GENERAR_COLUMNA(x) (x%100)
+/* Pasan de la poscicon escrita como numero de 4 digitos a coordenanda */
+
 #define BORRAR_BUFFER while (getchar()!='\n')
 
-typedef struct
+typedef struct /* Estructura con los datos escenciales del juego */
 	{	
 		int filas;
 		int columnas;
@@ -23,15 +25,15 @@ typedef struct
 		int turno;
 	} tipoMatriz;
 
-void TableroInicial (tipoMatriz *Tablero, char *contenidoTablero);
+void TableroInicial (tipoMatriz *Tablero, const char *contenidoTablero);
 void EjecutarJugada (tipoMatriz *Tablero, int *mov);
 void LLenarTablero (tipoMatriz *Tablero);
 void CrearBlob (tipoMatriz *Tablero ,int fila, int columna);
 void Salto (tipoMatriz *Tablero, int *mov);
 void Adyacentes (tipoMatriz *Tablero, int fila, int columna);
-int ValidarParametros (tipoMatriz *Tablero, char **movimiento, int *mov, char **vecErrores, int *error);
+int ValidarParametros (tipoMatriz *Tablero, char **movimiento, int *mov, int *error);
 int ValidarSave (char **movimiento);
-int ValidarLimites (tipoMatriz *Tablero, int *mov);
+int ValidarLimites (tipoMatriz *Tablero, const int *mov);
 int CalcularDistancia (int u, int x, int v, int y);
 int Fin (tipoMatriz *Tablero);
 int ContarFichas (tipoMatriz *Tablero, int jugador);
