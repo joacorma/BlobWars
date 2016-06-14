@@ -27,7 +27,7 @@ int main ()
 	srand(time(NULL)); 
 	char *vecErrores[MAX_ERRORES], idJugador[3] = {'0', 'A', 'Z'}, *contenidoTablero;
 	tipoMatriz Tablero;
-	int noLoad=1;
+	int noLoad;
 	Tablero.opcion = 0;												/* Se inicializa en 0 para que entre la primera vez al while */
 
 	CargarErrores(vecErrores);
@@ -35,6 +35,7 @@ int main ()
 	while (Tablero.opcion != 4)
 	{
 		contenidoTablero = NULL;
+		noLoad=1;
 		PantallaInicial ();
 		printf("Elegir opcion: ");
 		Tablero.opcion = get_int();
@@ -44,39 +45,26 @@ int main ()
 			printf("Elegir opcion: ");
 			Tablero.opcion = get_int();
 		}
-		while(Tablero.opcion == 3 || Tablero.opcion == 4)								/* Este while permite que el jugador cancele la opcion 3 */
+		switch(Tablero.opcion)
 		{
-			switch(Tablero.opcion)
+			case 3: 																	/* Si la opcion es 3 va a recuperar juego */
+			{	
+				while (Tablero.opcion == 3)
+					noLoad=RecuperarJuego(&Tablero, &contenidoTablero, vecErrores); 	/* contenidoTablero guarda los el tablero recuperado */
+			}
+			break;
+		
+			case 4: 																	/* Si la opcion es 4 termina el programa */
 			{
-				case 3: 																	/* Si la opcion es 3 va a recuperar juego */
-				{	
-					while (Tablero.opcion == 3)
-						noLoad=RecuperarJuego(&Tablero, &contenidoTablero, vecErrores); 	/* contenidoTablero guarda los el tablero recuperado */
-					if(noLoad == 0)
-					{
-						PantallaInicial ();
-						printf("Elegir opcion: ");
-						Tablero.opcion = get_int();
-						while (Tablero.opcion < 1 || Tablero.opcion > 4) 								/* Controla que la opcion este entre 1 y 4 */
-						{
-							ImprimirError(vecErrores, 0);
-							printf("Elegir opcion: ");
-							Tablero.opcion = get_int();
-						}
-					}
-				}
-				break;
-			
-				case 4: 																	/* Si la opcion es 4 termina el programa */
-				{
-					printf("Gracias por jugar al Blob Wars. Hasta pronto!\n\n");
-					return 0;
-				}
+				printf("Gracias por jugar al Blob Wars. Hasta pronto!\n\n");
+				return 0;
 			}
 		}
-																						/* Si la opcion es 1 0 2 no ejecuto el juego */
-		CrearTablero(&Tablero, contenidoTablero, vecErrores);
-		ProcesoJuego(&Tablero, idJugador, vecErrores);
+		if(noLoad!=0)
+		{																				/* Si la opcion es 1 0 2 no ejecuto el juego */
+			CrearTablero(&Tablero, contenidoTablero, vecErrores);
+			ProcesoJuego(&Tablero, idJugador, vecErrores);
+		}
 	}
 	return 0;
 }
