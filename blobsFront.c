@@ -87,7 +87,11 @@ void ProcesoJuego (tipoMatriz *Tablero, const char *idJugador, char **vecErrores
 		printf("\nTurno Jugador %d\n", Tablero->turno);
 
 		if (Tablero->opcion == 2 && Tablero->turno == 2)
+		{	
+			printf("Pulse enter para continuar...\n");
+			BORRAR_BUFFER;
 			accion = JugadaComputadora (Tablero, coordenadas);
+		}
 		else
 			accion = CapturarJugada (Tablero, &movimiento, coordenadas, vecErrores);
 	
@@ -142,7 +146,8 @@ void ProcesoJuego (tipoMatriz *Tablero, const char *idJugador, char **vecErrores
 	{	
 		ImprimirTablero(Tablero, idJugador);								/* Se imprime el tablero con el ultimo movimiento valido */
 		printf("\nEl Jugador %d no tiene mas mvimentos disponibles\n", Tablero->turno);
-
+		printf("\nPulse enter para continuar...\n"); 
+    	BORRAR_BUFFER;
 		LLenarTablero (Tablero);
 		ImprimirTablero(Tablero, idJugador);		/* Se imprime el tablero llenado con las fichas del que todavia tenia movimientos */
 		
@@ -153,6 +158,8 @@ void ProcesoJuego (tipoMatriz *Tablero, const char *idJugador, char **vecErrores
 			printf("\nHubo un empate\n");
 		else
 			printf("\nEl ganador es el Jugador %d\n", ((ganador > 0) ? 1 : 2));
+		printf("\nPulse enter para volver al menu principal...\n"); 
+		BORRAR_BUFFER;    		
 	}
 
 	free(Tablero->matriz); 												/* Se libera la el espacio donde se habia creado el tablero */
@@ -170,7 +177,7 @@ void CargarErrores (char **vecErrores) 															/* Inicializa el vector de
 	vecErrores[6] = "Ese casillero no corresponde a una ficha tuya";
 	vecErrores[7] = "Ese casillero ya esta ocupado";
 	vecErrores[8] = "El archivo esta corrupto o no existe";
-	vecErrores[9] = "Introduzca s o n";
+	vecErrores[9] = "Introduzca 1 por No/2 por Si";
 	vecErrores[10] = "No es un nombre valido para el archivo";
 }
 
@@ -343,8 +350,10 @@ void GuardarJuego (tipoMatriz *Tablero, const char *movimiento, const char *idJu
 		}
 	}
 	fwrite(posciciones, Tablero->filas * Tablero->columnas, 1, archivo);
-	
 	fclose(archivo);
+
+	printf("Partida guardada. Pulse enter para continuar...\n"); 
+  	BORRAR_BUFFER;
 }
 
 int RecuperarJuego(tipoMatriz *Tablero, char **contenidoTablero, char **vecErrores)					/* Recupera un juego gurdado */
