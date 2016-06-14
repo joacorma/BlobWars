@@ -1,7 +1,7 @@
 BACK = blobsBack.c blobsBack.h
 BACKC = blobsBack.c
-FRONT = BlobWars.c
-OBJECTS = blobsBack.o BlobWars.o
+FRONT = blobsFront.c
+OBJECTS = blobsBack.o blobsFront.o
 NAME = BlobWars.game
 
 build: $(OBJECTS)
